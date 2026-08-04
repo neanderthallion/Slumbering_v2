@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, StyleSheet, Platform } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
-import { formatTime12h } from '../utils/date';
+import { formatTime12h, parseTypedTime } from '../utils/date';
+import { TimePickerPanel } from './TimePickerPanel';
 
 interface Props {
   label: string;
@@ -11,23 +12,27 @@ interface Props {
   emoji?: string;
 }
 
-function timeToDate(time: string): Date {
-  const [h, m] = time.split(':').map(Number);
-  const d = new Date();
-  d.setHours(h, m, 0, 0);
-  return d;
-}
-
-function dateToTime(date: Date): string {
-  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-}
-
 export function TimeField({ label, time, onChange, emoji }: Props) {
   const { theme } = useTheme();
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [editingText, setEditingText] = useState(false);
+  const [draft, setDraft] = useState('');
+
+  function startEditingText() {
+    setDraft(formatTime12h(time));
+    setEditingText(true);
+  }
+
+  function commitDraft() {
+    setEditingText(false);
+    const parsed = parseTypedTime(draft, time);
+    if (parsed) onChange(parsed);
+  }
+
+  const valueTextStyle = { fontFamily: theme.fonts.bodyMedium, fontSize: 19, color: theme.colors.accent };
 
   return (
-    <View style={[styles.box, { backgroundColor: theme.colors.bgCard, borderColor: theme.colors.hairline }]}>
+    <View style={styles.box}>
       <Text
         style={{
           fontFamily: theme.fonts.bodyBold,
@@ -41,26 +46,35 @@ export function TimeField({ label, time, onChange, emoji }: Props) {
         {emoji ? `${emoji} ` : ''}
         {label}
       </Text>
-      <Pressable onPress={() => setPickerOpen(true)}>
-        <Text style={{ fontFamily: theme.fonts.display, fontSize: 20, color: theme.colors.textHi }}>
-          {formatTime12h(time)}
-        </Text>
-      </Pressable>
+      <View style={styles.valueRow}>
+        {editingText ? (
+          <TextInput
+            value={draft}
+            onChangeText={(t) => setDraft(t.replace(/[^0-9apmAPM]/g, ''))}
+            onSubmitEditing={commitDraft}
+            onBlur={commitDraft}
+            autoFocus
+            selectTextOnFocus
+            style={[valueTextStyle, styles.textInput, { borderColor: theme.colors.accent }]}
+          />
+        ) : (
+          <Pressable onPress={startEditingText}>
+            <Text style={valueTextStyle}>{formatTime12h(time)}</Text>
+          </Pressable>
+        )}
+        <Pressable onPress={() => setPickerOpen(true)} hitSlop={8}>
+          <Ionicons name="time-outline" size={17} color={theme.colors.textLow} />
+        </Pressable>
+      </View>
       {pickerOpen && (
-        <DateTimePicker
-          value={timeToDate(time)}
-          mode="time"
-          is24Hour={false}
-          onChange={(event, date) => {
-            setPickerOpen(Platform.OS === 'ios');
-            if (event.type === 'set' && date) onChange(dateToTime(date));
-          }}
-        />
+        <TimePickerPanel time={time} onChange={onChange} onRequestClose={() => setPickerOpen(false)} />
       )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  box: { flex: 1, borderRadius: 16, padding: 14, borderWidth: 1 },
+  box: { flex: 1 },
+  valueRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  textInput: { borderWidth: 1, borderRadius: 6, paddingVertical: 0, paddingHorizontal: 4, minWidth: 78 },
 });

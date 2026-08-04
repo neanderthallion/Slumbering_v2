@@ -21,50 +21,24 @@ export function createDefaultSettings(): AppSettings {
     reminders: {
       setGoals: { enabled: true, time: '21:00', notificationId: null },
       checkIn: { enabled: true, time: '08:00', notificationId: null },
+      windDown: { enabled: true, time: '22:50', notificationId: null },
     },
-    sleepMode: {
-      manualActive: false,
-      autoActivated: false,
+    bedtimeSchedule: {
       bedtime: '23:00',
       wakeTime: '07:00',
-      daysOfWeek: [true, true, true, true, true, true, true],
-      toggles: {
-        darkMode: true,
-        doNotDisturb: true,
-        lowerBrightness: true,
-        silenceNotifications: true,
-        turnOffAlwaysOnDisplay: true,
-      },
-      alarm: {
-        sound: 'Morning Xylophone',
-        vibration: 'Standard',
-        snoozeCount: 3,
-        snoozeIntervalMinutes: 5,
-      },
-      activatedAt: null,
-      previousBrightness: null,
-      previousThemeMode: null,
     },
-    backup: {
-      dropboxConnected: false,
-    },
+    celebratedAchievementIds: [],
   };
 }
 
-function mergeSettings(base: AppSettings, partial: Partial<AppSettings> | null): AppSettings {
+export function mergeSettings(base: AppSettings, partial: Partial<AppSettings> | null): AppSettings {
   if (!partial) return base;
   return {
     ...base,
     ...partial,
     reminders: { ...base.reminders, ...(partial.reminders ?? {}) },
     suggestedGoals: { ...base.suggestedGoals, ...(partial.suggestedGoals ?? {}) },
-    sleepMode: {
-      ...base.sleepMode,
-      ...(partial.sleepMode ?? {}),
-      toggles: { ...base.sleepMode.toggles, ...(partial.sleepMode?.toggles ?? {}) },
-      alarm: { ...base.sleepMode.alarm, ...(partial.sleepMode?.alarm ?? {}) },
-    },
-    backup: { ...base.backup, ...(partial.backup ?? {}) },
+    bedtimeSchedule: { ...base.bedtimeSchedule, ...(partial.bedtimeSchedule ?? {}) },
   };
 }
 

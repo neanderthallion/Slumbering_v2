@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Slumbering</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#12112a;
+    --bg-deep2:#1c1a3f;
+    --bg-card: rgba(255,255,255,0.055);
+    --bg-card-strong: rgba(255,255,255,0.09);
+    --hairline: rgba(255,255,255,0.09);
+    --moon-light:#f4ecd8;
+    --text-hi:#f4f2ff;
+    --text-mid: rgba(244,242,255,0.66);
+    --text-low: rgba(244,242,255,0.4);
+    --accent:#8b85ff;
+    --accent-soft: rgba(139,133,255,0.16);
+    --amber:#f0b25e;
+    --sage:#8fd3b6;
+    --radius-lg:28px;
+    --radius-md:18px;
+    --font-display:'Fraunces', serif;
+    --font-body:'Manrope', sans-serif;
+    --text-scale:1;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:var(--font-body);
+    min-height:100vh;
+    display:flex;align-items:center;justify-content:center;
+    background:
+      radial-gradient(circle at 18% 15%, rgba(139,133,255,0.16), transparent 40%),
+      radial-gradient(circle at 82% 78%, rgba(240,178,94,0.10), transparent 45%),
+      #0a0918;
+    padding:40px 16px;
+  }
+  .stars{position:fixed; inset:0; z-index:0; pointer-events:none;}
+  .stars span{position:absolute; width:2px;height:2px;border-radius:50%;background:rgba(255,255,255,0.55);}
+
+  .phone{
+    position:relative; z-index:1;
+    width:380px; height:790px;
+    background: linear-gradient(180deg, var(--bg-deep2), var(--bg-deep) 60%);
+    border-radius:46px;
+    border:1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 40px 90px rgba(0,0,0,0.55), inset 0 0 0 8px rgba(0,0,0,0.35), inset 0 0 40px rgba(139,133,255,0.05);
+    overflow:hidden;
+    display:flex; flex-direction:column;
+    font-size:calc(1rem * var(--text-scale));
+  }
+  .statusbar{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:16px 28px 4px; font-size:13px; color:var(--text-hi); font-weight:600; letter-spacing:0.02em;
+  }
+  .notch{position:absolute; top:0; left:50%; transform:translateX(-50%); width:120px; height:26px; background:#0a0918; border-radius:0 0 18px 18px; z-index:60;}
+
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:6px 22px 14px; border-bottom:1px solid var(--hairline);
+  }
+  .brand{display:flex; align-items:center; gap:8px;}
+  .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--moon-light); box-shadow:0 0 12px rgba(244,236,216,0.8); cursor:pointer;}
+  .brand span{font-family:var(--font-display); font-weight:500; letter-spacing:0.16em; font-size:13px; color:var(--text-hi); text-transform:uppercase;}
+  .icon-btn{width:34px;height:34px;border-radius:50%;background:var(--bg-card); border:1px solid var(--hairline); display:flex;align-items:center;justify-content:center; cursor:pointer; transition:background .2s;}
+  .icon-btn:hover{background:var(--bg-card-strong);}
+  .icon-btn svg{width:16px;height:16px;}
+
+  .content{flex:1; overflow-y:auto; padding:22px 22px 110px;}
+  .content::-webkit-scrollbar{width:0;}
+
+  h1.page-title{font-family:var(--font-display); font-style:italic; font-weight:400; font-size:24px; color:var(--text-hi); margin:2px 0 16px;}
+  .eyebrow{font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-low); margin-bottom:6px; font-weight:700;}
+
+  .card{
+    background:var(--bg-card); border:1px solid var(--hairline); border-radius:var(--radius-lg);
+    padding:20px; margin-bottom:14px;
+  }
+  .card.tap{cursor:pointer; transition:transform .15s, background .15s;}
+  .card.tap:hover{background:var(--bg-card-strong); transform:translateY(-1px);}
+
+  .message-row{display:flex; align-items:flex-start; justify-content:space-between; gap:10px;}
+  .message-line{font-family:var(--font-display); font-style:italic; font-size:18px; line-height:1.5; color:var(--text-hi);}
+  .msg-type{font-size:10.5px; text-transform:uppercase; letter-spacing:0.1em; color:var(--accent); font-weight:800; margin-bottom:6px;}
+  .sub{font-size:13px; color:var(--text-mid); margin-top:4px;}
+  .shuffle-btn{width:30px;height:30px; border-radius:50%; background:var(--bg-card-strong); border:1px solid var(--hairline); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;}
+  .shuffle-btn svg{width:14px;height:14px; stroke:var(--text-mid);}
+  .shuffle-btn:hover svg{stroke:var(--text-hi);}
+
+  .cta{
+    display:flex; align-items:center; justify-content:space-between;
+    background:linear-gradient(135deg, var(--accent), #5f57d6);
+    border-radius:var(--radius-lg); padding:20px; cursor:pointer;
+    box-shadow:0 12px 30px rgba(139,133,255,0.25);
+    transition:transform .15s;
+  }
+  .cta:hover{transform:translateY(-1px);}
+  .cta .label{font-family:var(--font-display); font-size:18px; color:#fff;}
+  .cta .sub2{font-size:12px; color:rgba(255,255,255,0.75); margin-top:3px;}
+  .cta .arrow{font-size:20px; color:#fff;}
+
+  .section-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
+  .section-head .eyebrow{margin-bottom:0;}
+  .link-btn{font-size:12px; font-weight:700; color:var(--accent); cursor:pointer; background:none; border:none;}
+
+  .moonrow{display:flex; gap:8px;}
+  .moon{width:24px;height:24px;border-radius:50%;background:var(--moon-light); position:relative; overflow:hidden; flex-shrink:0;}
+  .moon::after{content:'';position:absolute; top:0; left:0; width:24px;height:24px;border-radius:50%; background:var(--bg-deep);}
+  .moon[data-phase="0"]::after{transform:translateX(0);}
+  .moon[data-phase="1"]::after{transform:translateX(42%);}
+  .moon[data-phase="2"]::after{transform:translateX(120%);}
+  .moon.big{width:60px;height:60px;}
+  .moon.big::after{width:60px;height:60px;}
+  .moon-daylabel{font-size:9px; color:var(--text-low); text-align:center; margin-top:4px; font-weight:700;}
+  .moon-col{display:flex; flex-direction:column; align-items:center;}
+
+  .milestone-line{font-family:var(--font-display); font-style:italic; color:var(--amber); font-size:13.5px; margin-top:12px; display:flex; align-items:center; gap:6px;}
+
+  .bottomnav{
+    position:absolute; bottom:0; left:0; right:0; z-index:10;
+    display:flex; justify-content:space-around; align-items:center;
+    padding:14px 30px 22px; background:linear-gradient(0deg, var(--bg-deep) 70%, transparent);
+    border-top:1px solid var(--hairline);
+  }
+  .navbtn{display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; color:var(--text-low); background:none; border:none;}
+  .navbtn svg{width:20px;height:20px; stroke:currentColor;}
+  .navbtn.active{color:var(--moon-light);}
+  .navbtn span{font-size:10px; font-weight:600; letter-spacing:0.04em;}
+
+  .btn{font-family:var(--font-body); font-weight:700; font-size:14px; border:none; border-radius:14px; padding:13px 20px; cursor:pointer; transition:transform .12s, opacity .12s;}
+  .btn:active{transform:scale(0.97);}
+  .btn-primary{background:var(--accent); color:#fff;}
+  .btn-primary:hover{opacity:0.92;}
+  .btn-primary:disabled{opacity:0.4; cursor:not-allowed;}
+  .btn-ghost{background:var(--bg-card); color:var(--text-hi); border:1px solid var(--hairline);}
+  .btn-ghost:hover{background:var(--bg-card-strong);}
+  .btn-sm{padding:9px 14px; font-size:12.5px;}
+  .btn-row{display:flex; gap:10px; margin-top:14px;}
+  .btn-row .btn{flex:1;}
+
+  .tabs{display:flex; gap:8px; margin-bottom:16px;}
+  .tab{flex:1; text-align:center; padding:10px 6px; border-radius:12px; font-size:13px; font-weight:700; color:var(--text-mid); background:var(--bg-card); border:1px solid var(--hairline); cursor:pointer;}
+  .tab.active{background:var(--accent); color:#fff; border-color:transparent;}
+
+  .goal-item{display:flex; align-items:flex-start; gap:12px; padding:12px 4px; border-bottom:1px solid var(--hairline);}
+  .goal-item:last-child{border-bottom:none;}
+  .checkbox{width:20px;height:20px; border-radius:7px; border:1.5px solid rgba(255,255,255,0.3); flex-shrink:0; display:flex; align-items:center; justify-content:center; cursor:pointer; margin-top:1px; transition:all .15s;}
+  .checkbox.checked{background:var(--accent); border-color:var(--accent);}
+  .checkbox.locked{cursor:not-allowed; opacity:0.5;}
+  .checkbox svg{width:12px;height:12px; opacity:0;}
+  .checkbox.checked svg{opacity:1;}
+  .goal-text{font-size:14.5px; color:var(--text-hi); line-height:1.4; cursor:pointer;}
+  .goal-item.disabled .goal-text{color:var(--text-low);}
+  .goal-item.disabled .checkbox{opacity:0.35; cursor:not-allowed;}
+
+  .addrow{display:flex; gap:8px; margin-top:12px;}
+  .addrow input{flex:1; background:var(--bg-card); border:1px solid var(--hairline); border-radius:12px; padding:11px 14px; color:var(--text-hi); font-family:var(--font-body); font-size:13.5px; outline:none;}
+  .addrow input::placeholder{color:var(--text-low);}
+  .addrow input:focus{border-color:var(--accent);}
+
+  .disclaimer{background:rgba(240,178,94,0.12); border:1px solid rgba(240,178,94,0.35); border-radius:14px; padding:14px; font-size:13px; color:var(--amber); margin-top:12px; line-height:1.5;}
+  .disclaimer .btn-row{margin-top:10px;}
+
+  .selected-counter{font-size:12px; color:var(--text-low); margin-bottom:10px;}
+
+  .tonight-tag{display:inline-block; font-size:10.5px; text-transform:uppercase; letter-spacing:0.08em; font-weight:800; padding:4px 10px; border-radius:20px; margin-bottom:12px;}
+  .tag-set{background:var(--accent-soft); color:var(--accent);}
+  .tag-checking{background:rgba(240,178,94,0.16); color:var(--amber);}
+
+  .timeline{position:relative; padding-left:22px; margin-top:6px;}
+  .timeline::before{content:''; position:absolute; left:5px; top:6px; bottom:6px; width:1px; background:var(--hairline);}
+  .tl-item{position:relative; padding-bottom:22px;}
+  .tl-item::before{content:''; position:absolute; left:-22px; top:4px; width:9px;height:9px;border-radius:50%; background:var(--accent); box-shadow:0 0 0 3px var(--bg-deep);}
+  .tl-item.milestone::before{background:var(--amber);}
+  .tl-date{font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-low); font-weight:700; margin-bottom:6px;}
+  .tl-goal{font-size:14px; color:var(--text-mid); display:flex; align-items:center; gap:8px; margin-bottom:3px;}
+  .tl-goal .dot-ok{color:var(--sage);}
+  .tl-goal .dot-no{color:var(--text-low);}
+  .tl-milestone-text{font-family:var(--font-display); font-style:italic; color:var(--amber); font-size:15px;}
+
+  .setting-row{display:flex; align-items:center; justify-content:space-between; padding:12px 2px;}
+  .setting-row + .setting-row{border-top:1px solid var(--hairline);}
+  .setting-label{font-size:14px; color:var(--text-hi); font-weight:600;}
+  .setting-sub{font-size:11.5px; color:var(--text-low); margin-top:2px;}
+  .switch{width:42px;height:24px;border-radius:14px;background:rgba(255,255,255,0.15); position:relative; cursor:pointer; flex-shrink:0; transition:background .2s;}
+  .switch.on{background:var(--accent);}
+  .switch::after{content:'';position:absolute; top:2px;left:2px; width:20px;height:20px;border-radius:50%;background:#fff; transition:transform .2s;}
+  .switch.on::after{transform:translateX(18px);}
+  .section-title{font-size:12px; letter-spacing:0.1em; text-transform:uppercase; color:var(--accent); font-weight:800; margin:22px 0 8px;}
+  .section-title:first-child{margin-top:0;}
+  .swatches{display:flex; gap:10px; margin-top:8px;}
+  .swatch{width:28px;height:28px;border-radius:50%; cursor:pointer; border:2px solid transparent;}
+  .swatch.active{border-color:#fff;}
+  .textsize-row{display:flex; gap:8px; margin-top:8px;}
+  .textsize-row .tab{padding:8px 4px;}
+
+  .toast{position:absolute; bottom:100px; left:50%; transform:translateX(-50%) translateY(20px); background:rgba(20,18,45,0.95); border:1px solid var(--hairline); color:var(--text-hi); padding:11px 20px; border-radius:30px; font-size:13px; font-weight:600; opacity:0; pointer-events:none; transition:all .3s; white-space:nowrap; z-index:90; box-shadow:0 10px 30px rgba(0,0,0,0.4);}
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  .overlay{position:absolute; inset:0; background:rgba(8,7,20,0.55); backdrop-filter:blur(2px); display:flex; align-items:flex-end; z-index:40; opacity:0; pointer-events:none; transition:opacity .25s;}
+  .overlay.show{opacity:1; pointer-events:auto;}
+  .overlay.layer2{z-index:50;}
+  .sheet{background:var(--bg-deep2); width:100%; border-radius:28px 28px 0 0; padding:22px 22px 26px; border-top:1px solid var(--hairline); transform:translateY(100%); transition:transform .3s ease; max-height:88%; overflow-y:auto;}
+  .overlay.show .sheet{transform:translateY(0);}
+  .sheet-handle{width:36px;height:4px;border-radius:2px; background:rgba(255,255,255,0.2); margin:0 auto 16px;}
+  .sheet-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;}
+
+  .window-row{display:flex; gap:12px; margin-bottom:14px;}
+  .window-box{flex:1; background:var(--bg-card); border-radius:16px; padding:14px; border:1px solid var(--hairline);}
+  .window-box .wlabel{font-size:10.5px; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-low); font-weight:700; display:flex; align-items:center; gap:5px; margin-bottom:6px;}
+  .window-box .wtime{font-family:var(--font-display); font-size:32px; color:var(--text-hi);}
+  .duration-note{font-size:12px; color:var(--text-mid); text-align:center; margin-bottom:16px;}
+  .dow-row{display:flex; gap:6px; margin-top:8px;}
+  .dow{width:32px;height:32px;border-radius:50%; display:flex;align-items:center;justify-content:center; font-size:12px; font-weight:700; background:var(--bg-card); border:1px solid var(--hairline); color:var(--text-mid); cursor:pointer;}
+  .dow.active{background:var(--accent); color:#fff; border-color:transparent;}
+  select.select{background:var(--bg-card); border:1px solid var(--hairline); border-radius:10px; color:var(--text-hi); font-family:var(--font-body); font-size:13px; padding:8px 10px; outline:none;}
+
+  .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-top:6px;}
+  .cal-dow{font-size:10px; text-align:center; color:var(--text-low); font-weight:800; text-transform:uppercase;}
+  .cal-day{aspect-ratio:1; display:flex; align-items:center; justify-content:center; border-radius:10px; font-size:12.5px; color:var(--text-mid); cursor:pointer; background:var(--bg-card); border:1px solid transparent;}
+  .cal-day:hover{border-color:var(--accent);}
+  .cal-day.has-entry{background:var(--accent-soft); color:var(--text-hi); font-weight:700;}
+  .cal-day.empty{visibility:hidden; cursor:default;}
+  .cal-month-label{font-family:var(--font-display); font-style:italic; font-size:16px; color:var(--text-hi); text-align:center; margin-bottom:10px;}
+  .achieve-row{display:flex; align-items:center; justify-content:space-between; padding:10px 2px; border-bottom:1px solid var(--hairline); gap:10px;}
+  .achieve-row:last-child{border-bottom:none;}
+  .achieve-row input{flex:1; background:var(--bg-card); border:1px solid var(--hairline); border-radius:10px; padding:9px 12px; color:var(--text-hi); font-size:13px; font-family:var(--font-body); outline:none;}
+  .pill-toggle{display:flex; gap:6px; flex-shrink:0;}
+  .pill{padding:7px 13px; border-radius:20px; font-size:12px; font-weight:700; cursor:pointer; border:1px solid var(--hairline); background:var(--bg-card); color:var(--text-mid);}
+  .pill.yes.active{background:var(--sage); color:#0e2b20; border-color:transparent;}
+  .pill.no.active{background:rgba(255,255,255,0.14); color:var(--text-hi); border-color:transparent;}
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<div class="phone">
+  <div class="notch"></div>
+  <div class="statusbar"><span>9:41</span><span>‧‧‧ 100%</span></div>
+
+  <div class="topbar">
+    <div class="brand"><span class="dot" onclick="advanceDay()" title="Simulate next night"></span><span>Slumbering</span></div>
+    <div class="icon-btn" onclick="openSheet('settings')" title="Settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#f4f2ff" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </div>
+  </div>
+
+  <div class="content" id="content">
+    <div class="eyebrow" id="home-eyebrow">Tonight</div>
+    <h1 class="page-title">Slumbering</h1>
+
+    <div class="card">
+      <div class="message-row">
+        <div>
+          <div class="msg-type" id="msg-type">Reflection</div>
+          <div class="message-line" id="home-message">Ready to wind down?</div>
+        </div>
+        <div class="shuffle-btn" onclick="generateDailyMessage(true)" title="New message">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="tonight-card" style="padding:20px;"></div>
+
+    <div class="card tap" onclick="openSheet('journey')">
+      <div class="section-head">
+        <div class="eyebrow">Journey · past week</div>
+        <span class="link-btn">See all →</span>
+      </div>
+      <div class="moonrow" id="home-moonrow"></div>
+      <div class="milestone-line" id="home-milestone">✦ Most recent milestone</div>
+    </div>
+  </div>
+
+  <div class="bottomnav">
+    <button class="navbtn" data-tab="journey" onclick="openSheet('journey')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M21 12.5A8.5 8.5 0 1 1 11.5 3 7 7 0 0 0 21 12.5z"/></svg>
+      <span>Journey</span>
+    </button>
+    <button class="navbtn active" data-tab="home" onclick="closeAllSheets(); content.scrollTo(0,0);">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+      <span>Home</span>
+    </button>
+    <button class="navbtn" data-tab="settings" onclick="openSheet('settings')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span>Settings</span>
+    </button>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="overlay" id="overlay-picker">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h1 class="page-title" style="font-size:21px;">Pick your goals for tonight</h1>
+      <div class="selected-counter" id="picker-counter">0 of 2 selected</div>
+      <div class="tabs">
+        <div class="tab active" data-cat="bedtime" onclick="switchCategory('bedtime')">Bedtime</div>
+        <div class="tab" data-cat="winddown" onclick="switchCategory('winddown')">Wind-down</div>
+        <div class="tab" data-cat="relaxation" onclick="switchCategory('relaxation')">Relaxation</div>
+      </div>
+      <div class="card" id="picker-list" style="margin-bottom:0;"></div>
+      <div id="disclaimer-slot"></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="closeSheet('picker')">Cancel</button>
+        <button class="btn btn-primary" id="picker-confirm" onclick="confirmGoals()">Confirm goals</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="overlay-journey">
+    <div class="sheet" style="max-height:92%;">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head">
+        <div>
+          <div class="eyebrow">Your journey</div>
+          <h1 class="page-title" style="margin:2px 0 0; font-size:21px;">Full history</h1>
+        </div>
+        <div class="icon-btn" onclick="openSheet('calendar')" title="Add a past record">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#f4f2ff" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>
+        </div>
+      </div>
+
+      <div class="card" style="display:flex; align-items:center; gap:18px; margin-top:10px;">
+        <div class="moon big" id="journey-bigmoon" data-phase="2"></div>
+        <div>
+          <div class="message-line" style="font-size:15.5px;" id="journey-headline">You're building a great routine.</div>
+          <div class="sub" id="journey-sub">6 nights logged this week</div>
+        </div>
+      </div>
+
+      <div class="section-head" style="margin-top:6px;"><div class="eyebrow">Past week</div></div>
+      <div class="moonrow" id="journey-moonrow" style="margin:0 0 20px;"></div>
+
+      <div class="timeline" id="journey-timeline"></div>
+
+      <div class="btn-row"><button class="btn btn-ghost" style="width:100%;" onclick="closeSheet('journey')">Close</button></div>
+    </div>
+  </div>
+
+  <div class="overlay layer2" id="overlay-calendar">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head">
+        <h1 class="page-title" style="margin:0; font-size:20px;">Add a past record</h1>
+        <span class="link-btn" onclick="closeSheet('calendar')">Close</span>
+      </div>
+      <div id="calendar-body"></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="overlay-settings">
+    <div class="sheet" style="max-height:92%;">
+      <div class="sheet-handle"></div>
+      <h1 class="page-title" style="font-size:21px;">Settings</h1>
+
+      <div class="section-title" style="margin-top:0;">Reminders</div>
+      <div class="card">
+        <div class="setting-row"><div><div class="setting-label">Check-in reminder</div><div class="setting-sub">8:00 AM</div></div><div class="switch on" onclick="toggleSwitch(this)"></div></div>
+        <div class="setting-row"><div><div class="setting-label">Set goals reminder</div><div class="setting-sub">9:00 PM</div></div><div class="switch on" onclick="toggleSwitch(this)"></div></div>
+      </div>
+
+      <div class="section-title">Sleep mode</div>
+      <div class="card tap" onclick="openSheet('sleepmode')">
+        <div class="setting-row" style="padding:0;">
+          <div><div class="setting-label">Sleep mode</div><div class="setting-sub">11:00 PM - 7:00 AM · repeats nightly</div></div>
+          <div class="switch on" id="sleepmode-master" onclick="event.stopPropagation(); toggleSwitch(this)"></div>
+        </div>
+      </div>
+
+      <div class="section-title">Default night plan</div>
+      <div class="card">
+        <div class="sub" style="color:var(--text-hi); margin-bottom:4px;">Sleep before 11:00 PM</div>
+        <div class="sub">Put away devices 30 minutes before bed</div>
+      </div>
+
+      <div class="section-title">Appearance</div>
+      <div class="card">
+        <div class="setting-label" style="margin-bottom:2px;">Accent</div>
+        <div class="swatches" id="accent-swatches"></div>
+        <div class="setting-label" style="margin:16px 0 2px;">Text size</div>
+        <div class="textsize-row" id="textsize-row">
+          <div class="tab" data-size="0.9">Small</div>
+          <div class="tab active" data-size="1">Medium</div>
+          <div class="tab" data-size="1.15">Large</div>
+        </div>
+      </div>
+
+      <div class="section-title">Backup &amp; restore</div>
+      <div class="card">
+        <div class="setting-row"><div class="setting-label">Back up with Dropbox</div><div class="switch" onclick="toggleSwitch(this); showToast('Backup connected')"></div></div>
+        <div class="setting-row tap" onclick="showToast('Entries exported to CSV')"><div class="setting-label">Export entries to CSV</div><span style="color:var(--text-low)">→</span></div>
+        <div class="setting-row tap" onclick="showToast('Choose a backup file to import')"><div class="setting-label">Import entries from backup</div><span style="color:var(--text-low)">→</span></div>
+      </div>
+
+      <div class="section-title">App information</div>
+      <div class="card">
+        <div class="setting-row"><div class="setting-label">Version</div><span class="sub">1.4.0</span></div>
+        <div class="setting-row tap" onclick="showToast('Opening sleep science references')"><div class="setting-label">Sleep science references</div><span style="color:var(--text-low)">→</span></div>
+        <div class="setting-row tap" onclick="showToast('Opening Terms of Service')"><div class="setting-label">Terms of service</div><span style="color:var(--text-low)">→</span></div>
+        <div class="setting-row tap" onclick="showToast('Opening contact form')"><div class="setting-label">Contact us</div><span style="color:var(--text-low)">→</span></div>
+        <div class="setting-row tap" onclick="showToast('Thanks for the feedback')"><div class="setting-label">Feedback</div><span style="color:var(--text-low)">→</span></div>
+      </div>
+
+      <div class="btn-row"><button class="btn btn-ghost" style="width:100%;" onclick="closeSheet('settings')">Close</button></div>
+    </div>
+  </div>
+
+  <div class="overlay layer2" id="overlay-sleepmode">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head">
+        <h1 class="page-title" style="margin:0; font-size:21px;">Sleep mode</h1>
+        <div class="switch on" id="sleepmode-sheet-master" onclick="toggleSwitch(this)"></div>
+      </div>
+      <div class="sub" style="margin-bottom:16px;">Automates your phone settings at bedtime.</div>
+
+      <div class="section-title" style="margin-top:0;">Sleep window</div>
+      <div class="window-row">
+        <div class="window-box"><div class="wlabel">🌙 Bedtime</div><div class="wtime">11:00 PM</div></div>
+        <div class="window-box"><div class="wlabel">☀️ Wake-up</div><div class="wtime">7:00 AM</div></div>
+      </div>
+      <div class="duration-note">Sleep duration · 8h 00m</div>
+
+      <div class="section-title">Frequency</div>
+      <div class="dow-row" id="dow-row"></div>
+      <div class="sub" style="margin-top:8px;">Next: tonight, 11:00 PM · turns off tomorrow, 7:00 AM</div>
+
+      <div class="section-title">While sleep mode is active</div>
+      <div class="card" style="padding:6px 14px;">
+        <div class="setting-row"><div class="setting-label">Dark mode</div><div class="switch on" onclick="toggleSwitch(this)"></div></div>
+        <div class="setting-row"><div class="setting-label">Do Not Disturb</div><div class="switch on" onclick="toggleSwitch(this)"></div></div>
+        <div class="setting-row"><div class="setting-label">Lower brightness</div><div class="switch on" onclick="toggleSwitch(this)"></div></div>
+        <div class="setting-row"><div class="setting-label">Silence notifications</div><div class="switch on" onclick="toggleSwitch(this)"></div></div>
+        <div class="setting-row"><div class="setting-label">Turn off Always-on Display</div><div class="switch" onclick="toggleSwitch(this)"></div></div>
+      </div>
+
+      <div class="section-title">Wake-up alarm</div>
+      <div class="card" style="padding:6px 14px;">
+        <div class="setting-row"><div class="setting-label">Alarm sound</div><select class="select"><option>Morning Xylophone</option><option>Gentle Chimes</option><option>Ocean Drift</option></select></div>
+        <div class="setting-row"><div class="setting-label">Vibration</div><select class="select"><option>Standard</option><option>Gentle</option><option>Off</option></select></div>
+        <div class="setting-row"><div class="setting-label">Snooze</div><span class="sub">5 min · 3 times</span></div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="closeSheet('sleepmode')">Cancel</button>
+        <button class="btn btn-primary" onclick="closeSheet('sleepmode'); showToast('Sleep mode updated')">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ================= data ================= */
+const goalBank = {
+  bedtime: ["Sleep before 11:00 PM","Be in bed by 10:45 PM","Wake up at 6:30 AM"],
+  winddown: ["Put away all digital devices 30 minutes before bed","Avoid caffeine after 5:00 PM"],
+  relaxation: ["Read 10 pages before bed","Practice breathing or meditation for 5 minutes before bed"]
+};
+const defaultPlan = ["Sleep before 11:00 PM","Put away devices 30 minutes before bed"];
+
+let picker = { category:"bedtime", selected:[] };
+let card = { phase:"idle", goals:[] }; // phase: idle | set | checking
+
+let today = new Date(2026,6,22); // virtual "today" driving the demo
+
+function dstr(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function dlabel(d){ return d.toLocaleDateString('en-US',{month:'short', day:'numeric'}); }
+
+let journey = {
+  "2026-07-15": {goals:[{text:"Sleep before 11:00 PM", achieved:true},{text:"Put away devices 30 min before bed", achieved:true}]},
+  "2026-07-16": {goals:[{text:"Sleep before 11:00 PM", achieved:true},{text:"Read 10 pages before bed", achieved:false}]},
+  "2026-07-17": {goals:[{text:"Be in bed by 10:45 PM", achieved:false},{text:"Avoid caffeine after 5:00 PM", achieved:false}]},
+  "2026-07-18": {goals:[{text:"Sleep before 11:00 PM", achieved:true},{text:"Put away devices 30 min before bed", achieved:true}], milestone:"You've achieved your goals for 50 nights."},
+  "2026-07-19": {goals:[{text:"Sleep before 11:00 PM", achieved:true},{text:"Practice breathing before bed", achieved:true}]},
+  "2026-07-20": {goals:[{text:"Be in bed by 10:45 PM", achieved:true},{text:"Avoid caffeine after 5:00 PM", achieved:true}]},
+  "2026-07-21": {goals:[{text:"Sleep before 11:00 PM", achieved:true},{text:"Put away devices 30 min before bed", achieved:true}]},
+};
+
+/* ================= init ================= */
+function makeStars(){
+  const c = document.getElementById('stars');
+  for(let i=0;i<60;i++){
+    const s = document.createElement('span');
+    s.style.left = Math.random()*100+'%';
+    s.style.top = Math.random()*100+'%';
+    s.style.opacity = (Math.random()*0.8+0.2).toFixed(2);
+    c.appendChild(s);
+  }
+}
+makeStars();
+const content = document.getElementById('content');
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+/* ================= sheets ================= */
+function openSheet(name){
+  document.getElementById('overlay-'+name).classList.add('show');
+  if(name==='journey') renderJourneySheet();
+  if(name==='calendar') renderCalendar();
+  if(name==='picker') renderPicker();
+}
+function closeSheet(name){ document.getElementById('overlay-'+name).classList.remove('show'); }
+function closeAllSheets(){ document.querySelectorAll('.overlay').forEach(o=>o.classList.remove('show')); }
+
+/* ================= daily message ================= */
+const messagePools = {
+  compliment: ["You stayed consistent this week!","You're building a great routine.","Two full nights in a row, nicely done.","Your bedtime has been steady lately."],
+  reflection: ["You kept your bedtime on {n} of the last 7 nights.","You've logged {t} nights with Slumbering so far.","Your longest recent streak was {s} nights."],
+  suggestion: ["Maybe add a wind-down goal tomorrow?","Try moving bedtime 15 minutes earlier this week.","A phone-free 30 minutes before bed could help tonight."]
+};
+function journeyStats(){
+  const dates = last7Dates();
+  const entries = dates.map(d=>journey[dstr(d)]).filter(Boolean);
+  const fullNights = entries.filter(e=>e.goals.every(g=>g.achieved)).length;
+  let streak=0, maxStreak=0;
+  dates.forEach(d=>{ const e=journey[dstr(d)]; if(e && e.goals.every(g=>g.achieved)){streak++; maxStreak=Math.max(maxStreak,streak);} else {streak=0;} });
+  const total = Object.keys(journey).length;
+  return {fullNights, maxStreak, total};
+}
+function generateDailyMessage(manual){
+  const stats = journeyStats();
+  let type;
+  if(stats.fullNights >= 4) type = 'compliment';
+  else if(stats.fullNights <= 1) type = 'suggestion';
+  else type = manual ? ['compliment','reflection','suggestion'][Math.floor(Math.random()*3)] : 'reflection';
+  const pool = messagePools[type];
+  let text = pool[Math.floor(Math.random()*pool.length)];
+  text = text.replace('{n}', stats.fullNights).replace('{t}', stats.total).replace('{s}', stats.maxStreak || 1);
+  document.getElementById('msg-type').textContent = type;
+  document.getElementById('home-message').textContent = text;
+}
+
+/* ================= moon helpers ================= */
+function last7Dates(){
+  const arr=[];
+  for(let i=7;i>=1;i--){ const d=new Date(today); d.setDate(d.getDate()-i); arr.push(d); }
+  return arr;
+}
+function renderMoonRow(elId, withLabels){
+  const el = document.getElementById(elId);
+  el.innerHTML = '';
+  last7Dates().forEach(d=>{
+    const entry = journey[dstr(d)];
+    const phase = entry ? entry.goals.filter(g=>g.achieved).length : 0;
+    const col = document.createElement('div');
+    col.className = 'moon-col';
+    const m = document.createElement('div');
+    m.className='moon'; m.setAttribute('data-phase', String(phase));
+    col.appendChild(m);
+    if(withLabels){
+      const lab = document.createElement('div');
+      lab.className='moon-daylabel';
+      lab.textContent = d.toLocaleDateString('en-US',{weekday:'narrow'});
+      col.appendChild(lab);
+    }
+    el.appendChild(col);
+  });
+}
+function mostRecentMilestone(){
+  const dates = Object.keys(journey).sort().reverse();
+  for(const d of dates){ if(journey[d].milestone) return {date:d, text:journey[d].milestone}; }
+  return null;
+}
+
+/* ================= home render ================= */
+function renderHome(){
+  document.getElementById('home-eyebrow').textContent = "Tonight";
+  generateDailyMessage(false);
+  renderTonightCard();
+  renderMoonRow('home-moonrow', false);
+  const ms = mostRecentMilestone();
+  document.getElementById('home-milestone').textContent = ms ? '✦ ' + ms.text : '✦ Keep going! Your first milestone is on its way.';
+}
+
+/* ================= tonight's goals card (in-page, stateful) ================= */
+function renderTonightCard(){
+  const el = document.getElementById('tonight-card');
+  if(card.phase === 'idle'){
+    el.innerHTML = `
+      <div class="cta" onclick="openSheet('picker')">
+        <div>
+          <div class="label">Set tonight's goals</div>
+          <div class="sub2">Takes less than a minute</div>
+        </div>
+        <div class="arrow">→</div>
+      </div>`;
+    return;
+  }
+  const tag = card.phase === 'set'
+    ? '<span class="tonight-tag tag-set">Goals set for tonight</span>'
+    : '<span class="tonight-tag tag-checking">Checking in</span>';
+
+  const rows = card.goals.map((g,i)=>`
+    <div class="goal-item">
+      <div class="checkbox ${g.achieved?'checked':''} ${card.phase==='set'?'locked':''}"
+           onclick="${card.phase==='checking' ? `toggleAchieved(${i})` : ''}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+      </div>
+      <div class="goal-text">${g.text}</div>
+    </div>`).join('');
+
+  let footer = '';
+  if(card.phase === 'set'){
+    footer = `
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="openSheet('picker')">Edit goals</button>
+        <button class="btn btn-primary" onclick="beginCheckin()">☀️ I woke up — check in</button>
+      </div>`;
+  } else {
+    footer = `
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="cancelCheckin()">Cancel</button>
+        <button class="btn btn-primary" onclick="confirmCheckin()">Confirm check-in</button>
+      </div>`;
+  }
+
+  el.innerHTML = `${tag}${rows}${footer}`;
+}
+
+function beginCheckin(){ card.phase = 'checking'; renderTonightCard(); }
+function cancelCheckin(){ card.phase = 'set'; renderTonightCard(); }
+function toggleAchieved(i){ card.goals[i].achieved = !card.goals[i].achieved; renderTonightCard(); }
+
+function confirmCheckin(){
+  const key = dstr(today);
+  journey[key] = { goals: card.goals.map(g=>({text:g.text, achieved:g.achieved})) };
+  const totalNights = Object.keys(journey).length;
+  if(totalNights % 50 === 0){ journey[key].milestone = `You've achieved your goals for ${totalNights} nights.`; }
+  card = { phase:'idle', goals:[] };
+  today.setDate(today.getDate()+1);
+  renderHome();
+  showToast('Check-in saved to your journey');
+}
+
+function advanceDay(){
+  if(card.phase === 'set'){ beginCheckin(); showToast("It's morning! Time to check in"); }
+  else { showToast("Set tonight's goals first"); }
+}
+
+/* ================= goal picker sheet ================= */
+function switchCategory(cat){
+  picker.category = cat;
+  document.querySelectorAll('#overlay-picker .tab').forEach(t=>t.classList.toggle('active', t.dataset.cat===cat));
+  document.getElementById('disclaimer-slot').innerHTML = '';
+  renderPicker();
+}
+function renderPicker(){
+  const cat = picker.category;
+  const list = document.getElementById('picker-list');
+  list.innerHTML = '';
+  const items = goalBank[cat].concat(picker.selected.filter(s=>s.cat===cat && s.custom).map(s=>s.text));
+  const maxReached = picker.selected.length >= 2;
+
+  items.forEach(text=>{
+    const isChecked = picker.selected.some(s=>s.text===text);
+    const disabled = maxReached && !isChecked;
+    const row = document.createElement('div');
+    row.className = 'goal-item' + (disabled ? ' disabled':'');
+    row.innerHTML = `
+      <div class="checkbox ${isChecked?'checked':''}" onclick="${disabled?'':`toggleGoal('${text.replace(/'/g,"\\'")}','${cat}')`}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+      </div>
+      <div class="goal-text" onclick="${disabled?'':`toggleGoal('${text.replace(/'/g,"\\'")}','${cat}')`}">${text}</div>
+    `;
+    list.appendChild(row);
+  });
+
+  const addRow = document.createElement('div');
+  addRow.className = 'addrow';
+  addRow.innerHTML = `<input type="text" placeholder="Add your own..." id="custom-input" ${maxReached?'disabled':''}>
+    <button class="btn btn-ghost" style="padding:11px 16px;" onclick="addCustomGoal()" ${maxReached?'disabled':''}>Add</button>`;
+  list.appendChild(addRow);
+
+  document.getElementById('picker-counter').textContent = picker.selected.length + ' of 2 selected';
+  document.getElementById('picker-confirm').disabled = picker.selected.length===0;
+}
+function toggleGoal(text, cat){
+  const idx = picker.selected.findIndex(s=>s.text===text);
+  if(idx>-1){ picker.selected.splice(idx,1); }
+  else { if(picker.selected.length>=2) return; picker.selected.push({text, cat}); checkDisclaimer(text); }
+  renderPicker();
+}
+function addCustomGoal(){
+  const input = document.getElementById('custom-input');
+  const text = input.value.trim();
+  if(!text || picker.selected.length>=2) return;
+  picker.selected.push({text, cat:picker.category, custom:true});
+  checkDisclaimer(text);
+  renderPicker();
+}
+function checkDisclaimer(text){
+  const lower = text.toLowerCase();
+  const riskyHours = ['12:','1:00 am','1:30 am','2:','3:','4:'];
+  const isRisky = riskyHours.some(h=>lower.includes(h)) && lower.includes('am');
+  if(isRisky){
+    document.getElementById('disclaimer-slot').innerHTML = `
+      <div class="disclaimer">
+        Sleep experts generally recommend an earlier bedtime. Would you like to continue with this goal?
+        <div class="btn-row">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('disclaimer-slot').innerHTML=''">Edit goal</button>
+          <button class="btn btn-primary btn-sm" onclick="document.getElementById('disclaimer-slot').innerHTML=''">Keep it</button>
+        </div>
+      </div>`;
+  }
+}
+function confirmGoals(){
+  if(!picker.selected.length) return;
+  card.phase = 'set';
+  card.goals = picker.selected.map(s=>({text:s.text, achieved:false}));
+  picker.selected = [];
+  closeSheet('picker');
+  renderTonightCard();
+  showToast('Goals saved for tonight');
+}
+
+/* ================= journey sheet ================= */
+function renderJourneySheet(){
+  const dates = last7Dates();
+  const entries = dates.map(d=>journey[dstr(d)]).filter(Boolean);
+  const last = entries[entries.length-1];
+  const achievedCount = last ? last.goals.filter(g=>g.achieved).length : 0;
+  document.getElementById('journey-bigmoon').setAttribute('data-phase', achievedCount);
+  document.getElementById('journey-headline').textContent =
+    achievedCount===2 ? "You're building a great routine." : achievedCount===1 ? "Progress, not perfection." : "Welcome back. Ready to continue?";
+  document.getElementById('journey-sub').textContent = entries.length + " nights logged this week";
+  renderMoonRow('journey-moonrow', true);
+
+  const tl = document.getElementById('journey-timeline');
+  const sortedDates = Object.keys(journey).sort().reverse();
+  tl.innerHTML = sortedDates.map(key=>{
+    const entry = journey[key];
+    const label = dlabel(new Date(key+'T00:00:00'));
+    let html = '';
+    if(entry.milestone){
+      html += `<div class="tl-item milestone"><div class="tl-date">${label}</div><div class="tl-milestone-text">✦ ${entry.milestone}</div></div>`;
+    }
+    html += `<div class="tl-item"><div class="tl-date">${label}</div>` +
+      entry.goals.map(g=>`<div class="tl-goal"><span class="${g.achieved?'dot-ok':'dot-no'}">${g.achieved?'●':'○'}</span> ${g.text}</div>`).join('') +
+      `</div>`;
+    return html;
+  }).join('');
+}
+
+/* ================= calendar: add past record ================= */
+let calState = { month: new Date(2026,6,1), selectedDate: null };
+function renderCalendar(){
+  calState.selectedDate = null;
+  const body = document.getElementById('calendar-body');
+  const monthDate = calState.month;
+  const first = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+  const startDay = first.getDay();
+  const daysInMonth = new Date(monthDate.getFullYear(), monthDate.getMonth()+1, 0).getDate();
+  const monthLabel = monthDate.toLocaleDateString('en-US',{month:'long', year:'numeric'});
+
+  let grid = `<div class="cal-month-label">${monthLabel}</div><div class="cal-grid">`;
+  ['S','M','T','W','T','F','S'].forEach(d=> grid += `<div class="cal-dow">${d}</div>`);
+  for(let i=0;i<startDay;i++) grid += `<div class="cal-day empty"></div>`;
+  for(let day=1; day<=daysInMonth; day++){
+    const d = new Date(monthDate.getFullYear(), monthDate.getMonth(), day);
+    const key = dstr(d);
+    const hasEntry = !!journey[key];
+    grid += `<div class="cal-day ${hasEntry?'has-entry':''}" onclick="selectCalDate('${key}')">${day}</div>`;
+  }
+  grid += `</div>`;
+  body.innerHTML = grid + `<div id="record-form"></div>`;
+}
+function selectCalDate(key){
+  calState.selectedDate = key;
+  const existing = journey[key];
+  const goals = existing ? existing.goals.map(g=>({...g})) : defaultPlan.map(t=>({text:t, achieved:false}));
+  window._recordGoals = goals;
+  const label = dlabel(new Date(key+'T00:00:00'));
+  const form = document.getElementById('record-form');
+  form.innerHTML = `
+    <div class="section-title">Record for ${label}</div>
+    <div class="card" id="record-rows" style="padding:6px 14px;"></div>
+    <div class="addrow" style="margin-bottom:4px;">
+      <button class="btn btn-ghost" style="width:100%;" onclick="addRecordRow()">+ Add another goal</button>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="document.getElementById('record-form').innerHTML=''">Cancel</button>
+      <button class="btn btn-primary" onclick="saveRecord()">Save record</button>
+    </div>`;
+  renderRecordRows();
+}
+function renderRecordRows(){
+  const wrap = document.getElementById('record-rows');
+  wrap.innerHTML = window._recordGoals.map((g,i)=>`
+    <div class="achieve-row">
+      <input type="text" value="${g.text}" oninput="window._recordGoals[${i}].text=this.value">
+      <div class="pill-toggle">
+        <div class="pill yes ${g.achieved?'active':''}" onclick="setRecordAchieved(${i}, true)">Yes</div>
+        <div class="pill no ${!g.achieved?'active':''}" onclick="setRecordAchieved(${i}, false)">No</div>
+      </div>
+    </div>`).join('');
+}
+function setRecordAchieved(i, val){ window._recordGoals[i].achieved = val; renderRecordRows(); }
+function addRecordRow(){ if(window._recordGoals.length>=4) return; window._recordGoals.push({text:'New goal', achieved:false}); renderRecordRows(); }
+function saveRecord(){
+  const key = calState.selectedDate;
+  if(!key) return;
+  const existingMilestone = journey[key] && journey[key].milestone;
+  journey[key] = { goals: window._recordGoals.map(g=>({text:g.text, achieved:g.achieved})) };
+  if(existingMilestone) journey[key].milestone = existingMilestone;
+  showToast('Record saved for ' + dlabel(new Date(key+'T00:00:00')));
+  closeSheet('calendar');
+  renderJourneySheet();
+  renderHome();
+}
+
+/* ================= settings ================= */
+function toggleSwitch(el){
+  el.classList.toggle('on');
+  if(el.id==='sleepmode-master' || el.id==='sleepmode-sheet-master'){
+    const on = el.classList.contains('on');
+    document.getElementById('sleepmode-master').classList.toggle('on', on);
+    document.getElementById('sleepmode-sheet-master').classList.toggle('on', on);
+  }
+}
+const accentColors = [
+  {name:'periwinkle', hex:'#8b85ff'},
+  {name:'amber', hex:'#f0b25e'},
+  {name:'sage', hex:'#8fd3b6'},
+  {name:'blush', hex:'#e394ad'}
+];
+function renderAccentSwatches(){
+  const wrap = document.getElementById('accent-swatches');
+  wrap.innerHTML = accentColors.map((c,i)=>
+    `<div class="swatch ${i===0?'active':''}" style="background:${c.hex}" onclick="setAccent('${c.hex}', this)"></div>`
+  ).join('');
+}
+function setAccent(hex, el){
+  document.documentElement.style.setProperty('--accent', hex);
+  document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+  showToast('Accent updated');
+}
+renderAccentSwatches();
+document.getElementById('textsize-row').addEventListener('click', (e)=>{
+  const tab = e.target.closest('.tab');
+  if(!tab) return;
+  document.querySelectorAll('#textsize-row .tab').forEach(t=>t.classList.remove('active'));
+  tab.classList.add('active');
+  document.documentElement.style.setProperty('--text-scale', tab.dataset.size);
+});
+const dowLabels = ['M','T','W','T','F','S','S'];
+function renderDow(){
+  document.getElementById('dow-row').innerHTML = dowLabels.map((d,i)=>`<div class="dow ${i<5?'active':''}" onclick="this.classList.toggle('active')">${d}</div>`).join('');
+}
+renderDow();
+
+/* ================= init ================= */
+renderHome();
+</script>
+
+</body>
+</html>

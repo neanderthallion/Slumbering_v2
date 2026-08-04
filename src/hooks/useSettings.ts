@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { AppSettings } from '../types/models';
-import { loadSettings, saveSettings, createDefaultSettings } from '../data/settings';
+import { loadSettings, saveSettings, createDefaultSettings, mergeSettings } from '../data/settings';
 
 export function useSettings() {
   const [settings, setSettings] = useState<AppSettings>(createDefaultSettings());
@@ -27,5 +27,13 @@ export function useSettings() {
     });
   }, []);
 
-  return { settings, isLoaded, updateSettings };
+  const replaceSettings = useCallback((next: AppSettings) => {
+    // Merge with defaults so a backup exported before a settings field existed
+    // (e.g. an older AppSettings shape) doesn't restore into a broken state.
+    const merged = mergeSettings(createDefaultSettings(), next);
+    setSettings(merged);
+    saveSettings(merged);
+  }, []);
+
+  return { settings, isLoaded, updateSettings, replaceSettings };
 }

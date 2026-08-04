@@ -1,17 +1,14 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { Text, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { BottomSheetModal } from '@gorhom/bottom-sheet';
 
 import { useTheme } from '../../theme/ThemeContext';
 import { RootStackParamList } from '../../navigation/types';
 import { ProfileSection } from './ProfileSection';
 import { RemindersSection } from './RemindersSection';
-import { SleepModeSection } from './SleepModeSection';
-import { SleepModeSheet } from './SleepModeSheet';
 import { DefaultNightPlanSection } from './DefaultNightPlanSection';
 import { AppearanceSection } from './AppearanceSection';
 import { BackupRestoreSection } from './BackupRestoreSection';
@@ -41,7 +38,6 @@ function SectionTitle({ children }: { children: string }) {
 export function SettingsScreen() {
   const { theme } = useTheme();
   const navigation = useNavigation<Nav>();
-  const sheetRef = useRef<BottomSheetModal>(null);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.bgBase }} edges={['top', 'bottom']}>
@@ -63,9 +59,6 @@ export function SettingsScreen() {
         <SectionTitle>Reminders</SectionTitle>
         <RemindersSection />
 
-        <SectionTitle>Sleep mode</SectionTitle>
-        <SleepModeSection onOpenSheet={() => sheetRef.current?.present()} />
-
         <SectionTitle>Default night plan</SectionTitle>
         <DefaultNightPlanSection />
 
@@ -78,8 +71,6 @@ export function SettingsScreen() {
         <SectionTitle>App information</SectionTitle>
         <AppInfoSection />
       </ScrollView>
-
-      <SleepModeSheet ref={sheetRef} />
     </SafeAreaView>
   );
 }

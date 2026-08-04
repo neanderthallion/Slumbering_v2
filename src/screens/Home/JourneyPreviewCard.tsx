@@ -37,7 +37,7 @@ export function JourneyPreviewCard({ pastNights, streak, totalNights, milestone,
 
       <View style={styles.moonRow}>
         {pastNights.map((n) => (
-          <MoonIcon key={n.date} phase={n.phase} size={22} maskColor={theme.colors.bgCard} />
+          <MoonIcon key={n.date} phase={n.phase} size={22} />
         ))}
       </View>
 

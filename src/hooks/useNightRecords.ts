@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { NightRecord, NightRecordsMap } from '../types/models';
-import { loadNightRecords, saveNightRecords, upsertNightRecord } from '../data/nightRecords';
+import { loadNightRecords, saveNightRecords, upsertNightRecord, normalizeNightRecord } from '../data/nightRecords';
 
 export function useNightRecords() {
   const [records, setRecords] = useState<NightRecordsMap>({});
@@ -27,5 +27,13 @@ export function useNightRecords() {
     });
   }, []);
 
-  return { records, isLoaded, upsert };
+  const replaceRecords = useCallback((next: NightRecordsMap) => {
+    // Normalize so a backup exported before a NightRecord field existed doesn't restore into a broken state.
+    const normalized: NightRecordsMap = {};
+    for (const [date, record] of Object.entries(next)) normalized[date] = normalizeNightRecord(record);
+    setRecords(normalized);
+    saveNightRecords(normalized);
+  }, []);
+
+  return { records, isLoaded, upsert, replaceRecords };
 }

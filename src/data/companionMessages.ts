@@ -66,3 +66,7 @@ export function pickFromPool(pool: readonly string[], seed: string, exclude?: st
 export function majorMilestoneMessage(successfulNights: number): string {
   return `${successfulNights} successful nights!`;
 }
+
+export function engagementMilestoneMessage(engagedNights: number): string {
+  return `${engagedNights} nights of showing up for yourself.`;
+}

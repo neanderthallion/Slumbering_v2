@@ -1,5 +1,5 @@
 import React from 'react';
-import Svg, { Circle } from 'react-native-svg';
+import Svg, { Circle, ClipPath, G, Defs } from 'react-native-svg';
 import { MoonPhase } from '../types/models';
 import { useTheme } from '../theme/ThemeContext';
 
@@ -24,9 +24,17 @@ export function MoonIcon({ phase, size = 24, maskColor }: Props) {
   const resolvedMask = maskColor ?? theme.colors.bgBase;
 
   return (
-    <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      <Circle cx={cx} cy={cy} r={r} fill={theme.colors.moonLight} />
-      <Circle cx={maskCx} cy={cy} r={r} fill={resolvedMask} />
+    <Svg width={size} height={size} viewBox={`0 0 ${size}${size}`}>
+      <Defs>
+        <ClipPath id="moonClip">
+          <Circle cx={cx} cy={cy} r={r} />
+        </ClipPath>
+      </Defs>
+
+      <G clipPath="url(#moonClip)">
+        <Circle cx={cx} cy={cy} r={r} fill={theme.colors.moonLight} />
+        <Circle cx={maskCx} cy={cy} r={r} fill={resolvedMask} />
+      </G>
     </Svg>
   );
 }

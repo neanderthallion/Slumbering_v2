@@ -1,8 +1,29 @@
-import { NightRecord, NightRecordsMap, MoonPhase, JourneyEntry } from '../types/models';
+import { NightRecord, NightRecordsMap, MoonPhase, JourneyEntry, BadgeId } from '../types/models';
 import { sortedRecords } from './nightRecords';
-import { MAJOR_MILESTONES, STREAK_BAND_3_TO_6, STREAK_BAND_7, STREAK_BAND_30 } from '../constants/milestoneThresholds';
-import { COMPANION_POOLS, GREETING_POOLS, TODAYS_ACTION_POOLS, pickFromPool, majorMilestoneMessage } from './companionMessages';
-import { addDays, daysBetween, todayKey, getGreetingPeriod } from '../utils/date';
+import {
+  MAJOR_MILESTONES,
+  STREAK_BAND_3_TO_6,
+  STREAK_BAND_7,
+  STREAK_BAND_30,
+  isEngagementMilestoneThreshold,
+} from '../constants/milestoneThresholds';
+import {
+  BADGE_DEFINITIONS,
+  FULL_WEEK_STREAK_THRESHOLD,
+  ONE_MONTH_STREAK_THRESHOLD,
+  EARLY_RISER_HOUR_CUTOFF,
+  EARLY_RISER_COUNT_THRESHOLD,
+  WELCOME_BACK_GAP_DAYS,
+} from '../constants/badgeDefinitions';
+import {
+  COMPANION_POOLS,
+  GREETING_POOLS,
+  TODAYS_ACTION_POOLS,
+  pickFromPool,
+  majorMilestoneMessage,
+  engagementMilestoneMessage,
+} from './companionMessages';
+import { addDays, daysBetween, todayKey, toDateKey, getGreetingPeriod } from '../utils/date';
 
 export function getMoonPhase(record: NightRecord | undefined): MoonPhase {
   if (!record || record.goals.length === 0) return 'new';
@@ -40,9 +61,9 @@ export function computeStreak(records: NightRecordsMap): number {
   return streak;
 }
 
-export function computeMilestones(records: NightRecordsMap): { date: string; text: string }[] {
+export function computeMilestones(records: NightRecordsMap): { date: string; id: string; text: string }[] {
   const sorted = checkedInRecords(records);
-  const milestones: { date: string; text: string }[] = [];
+  const milestones: { date: string; id: string; text: string }[] = [];
   let successfulNights = 0;
   const hit = new Set<number>();
 
@@ -51,36 +72,139 @@ export function computeMilestones(records: NightRecordsMap): { date: string; tex
     for (const threshold of MAJOR_MILESTONES) {
       if (successfulNights === threshold && !hit.has(threshold)) {
         hit.add(threshold);
-        milestones.push({ date: record.date, text: majorMilestoneMessage(threshold) });
+        milestones.push({ date: record.date, id: `major-${threshold}`, text: majorMilestoneMessage(threshold) });
       }
     }
   }
   return milestones;
 }
 
-export function mostRecentMilestone(records: NightRecordsMap): { date: string; text: string } | undefined {
+export function mostRecentMilestone(records: NightRecordsMap): { date: string; id: string; text: string } | undefined {
   const milestones = computeMilestones(records);
   return milestones[milestones.length - 1];
 }
 
+/** Cumulative nights with at least one goal achieved (not necessarily fully, not necessarily consecutive). */
+export function computeEngagementMilestones(
+  records: NightRecordsMap
+): { date: string; id: string; threshold: number; text: string }[] {
+  const sorted = checkedInRecords(records);
+  const milestones: { date: string; id: string; threshold: number; text: string }[] = [];
+  let engagedNights = 0;
+  const hit = new Set<number>();
+
+  for (const record of sorted) {
+    const anyAchieved = record.goals.some((g) => g.achieved === true);
+    if (anyAchieved) engagedNights += 1;
+    if (isEngagementMilestoneThreshold(engagedNights) && !hit.has(engagedNights)) {
+      hit.add(engagedNights);
+      milestones.push({
+        date: record.date,
+        id: `engagement-${engagedNights}`,
+        threshold: engagedNights,
+        text: engagementMilestoneMessage(engagedNights),
+      });
+    }
+  }
+  return milestones;
+}
+
+/**
+ * Walks checked-in records chronologically, tracking the length of the
+ * current consecutive fully-achieved-nights run as of each date (a calendar
+ * gap since the previous checked-in record resets the run, same as
+ * `computeStreak`'s semantics). Used to find the first date a streak
+ * threshold (e.g. 7 or 30) was crossed, since badges record when they were
+ * first earned rather than the live streak.
+ */
+export function forwardConsecutiveFullyAchievedLengths(records: NightRecordsMap): { date: string; length: number }[] {
+  const sorted = checkedInRecords(records);
+  const result: { date: string; length: number }[] = [];
+  let runLength = 0;
+  let prevDate: string | null = null;
+
+  for (const record of sorted) {
+    const isConsecutiveDay = prevDate != null && daysBetween(prevDate, record.date) === 1;
+    if (isFullyAchieved(record)) {
+      runLength = isConsecutiveDay ? runLength + 1 : 1;
+    } else {
+      runLength = 0;
+    }
+    result.push({ date: record.date, length: runLength });
+    prevDate = record.date;
+  }
+  return result;
+}
+
+export interface BadgeUnlock {
+  date: string;
+  id: string;
+  badgeId: BadgeId;
+  text: string;
+}
+
+/** Each of the 5 fixed v1 badges, awarded once-ever on the date it was first earned. */
+export function computeBadgeUnlocks(records: NightRecordsMap): BadgeUnlock[] {
+  const sorted = checkedInRecords(records);
+  if (sorted.length === 0) return [];
+  const unlocks: BadgeUnlock[] = [];
+
+  unlocks.push({ date: sorted[0].date, id: 'badge-firstStep', badgeId: 'firstStep', text: BADGE_DEFINITIONS.firstStep.name });
+
+  const streaks = forwardConsecutiveFullyAchievedLengths(records);
+  const fullWeek = streaks.find((s) => s.length === FULL_WEEK_STREAK_THRESHOLD);
+  if (fullWeek) unlocks.push({ date: fullWeek.date, id: 'badge-fullWeek', badgeId: 'fullWeek', text: BADGE_DEFINITIONS.fullWeek.name });
+  const oneMonth = streaks.find((s) => s.length === ONE_MONTH_STREAK_THRESHOLD);
+  if (oneMonth) unlocks.push({ date: oneMonth.date, id: 'badge-oneMonth', badgeId: 'oneMonth', text: BADGE_DEFINITIONS.oneMonth.name });
+
+  let earlyRiserCount = 0;
+  for (const record of sorted) {
+    if (!record.checkInCompletedAt) continue;
+    if (new Date(record.checkInCompletedAt).getHours() < EARLY_RISER_HOUR_CUTOFF) {
+      earlyRiserCount += 1;
+      if (earlyRiserCount === EARLY_RISER_COUNT_THRESHOLD) {
+        unlocks.push({ date: record.date, id: 'badge-earlyRiser', badgeId: 'earlyRiser', text: BADGE_DEFINITIONS.earlyRiser.name });
+        break;
+      }
+    }
+  }
+
+  for (let i = 1; i < sorted.length; i++) {
+    if (daysBetween(sorted[i - 1].date, sorted[i].date) >= WELCOME_BACK_GAP_DAYS) {
+      unlocks.push({ date: sorted[i].date, id: 'badge-welcomeBack', badgeId: 'welcomeBack', text: BADGE_DEFINITIONS.welcomeBack.name });
+      break;
+    }
+  }
+
+  return unlocks;
+}
+
+const JOURNEY_EXTRA_ORDER: JourneyEntry['type'][] = ['milestone', 'engagementMilestone', 'badge'];
+
 export function buildJourneyEntries(records: NightRecordsMap): JourneyEntry[] {
   const sorted = checkedInRecords(records);
-  const milestones = computeMilestones(records);
-  const milestonesByDate = new Map<string, string[]>();
-  for (const m of milestones) {
-    const list = milestonesByDate.get(m.date) ?? [];
-    list.push(m.text);
-    milestonesByDate.set(m.date, list);
+  const extrasByDate = new Map<string, JourneyEntry[]>();
+  function pushExtra(date: string, entry: JourneyEntry) {
+    const list = extrasByDate.get(date) ?? [];
+    list.push(entry);
+    extrasByDate.set(date, list);
+  }
+
+  for (const m of computeMilestones(records)) pushExtra(m.date, { type: 'milestone', date: m.date, id: m.id, text: m.text });
+  for (const m of computeEngagementMilestones(records)) {
+    pushExtra(m.date, { type: 'engagementMilestone', date: m.date, id: m.id, threshold: m.threshold, text: m.text });
+  }
+  for (const b of computeBadgeUnlocks(records)) {
+    pushExtra(b.date, { type: 'badge', date: b.date, id: b.id, badgeId: b.badgeId, text: b.text });
   }
 
   const entries: JourneyEntry[] = [];
   for (const record of sorted) {
     entries.push({ type: 'night', record });
-    const texts = milestonesByDate.get(record.date);
-    if (texts) {
-      for (const text of texts) {
-        entries.push({ type: 'milestone', date: record.date, text });
-      }
+    const extras = extrasByDate.get(record.date);
+    if (extras) {
+      extras.sort((a, b) => JOURNEY_EXTRA_ORDER.indexOf(a.type) - JOURNEY_EXTRA_ORDER.indexOf(b.type));
+      entries.push(...extras);
     }
   }
   return entries.reverse();
@@ -97,6 +221,19 @@ export function computeDailyStage(records: NightRecordsMap): DailyStage {
 
 export function isFirstTimeUser(records: NightRecordsMap): boolean {
   return checkedInRecords(records).length === 0;
+}
+
+/**
+ * Last night's goals are only truly "missed" once its window has fully
+ * closed. Nights are still winding down between midnight and 2am, so a user
+ * up late has until then to pick their own goals before the default night
+ * plan silently fills in for them. Returns last night's date key if it needs
+ * filling, or null if it's past that window or already has a record.
+ */
+export function needsDefaultNightPlanFallback(records: NightRecordsMap, now: Date = new Date()): string | null {
+  if (now.getHours() >= 2) return null;
+  const lastNight = addDays(toDateKey(now), -1);
+  return records[lastNight] ? null : lastNight;
 }
 
 /** Days since the most recent checked-in night, or null if the user has never checked in. */

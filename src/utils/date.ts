@@ -31,6 +31,28 @@ export function formatFriendlyDate(dateKey: string): string {
   return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
+/** Splits a 'YYYY-MM-DD' key into dd/mm/yy string parts for manual date entry fields. */
+export function toDDMMYY(dateKey: string): { dd: string; mm: string; yy: string } {
+  const [y, m, d] = dateKey.split('-');
+  return { dd: d, mm: m, yy: y.slice(2) };
+}
+
+/**
+ * Parses manually-typed dd/mm/yy fields into a 'YYYY-MM-DD' key. Two-digit
+ * years are assumed to be 2000+yy. Returns null if the fields don't form a
+ * real calendar date.
+ */
+export function parseDDMMYY(dd: string, mm: string, yy: string): string | null {
+  if (!/^\d{1,2}$/.test(dd) || !/^\d{1,2}$/.test(mm) || !/^\d{1,4}$/.test(yy)) return null;
+  const d = parseInt(dd, 10);
+  const m = parseInt(mm, 10);
+  const y = yy.length <= 2 ? 2000 + parseInt(yy, 10) : parseInt(yy, 10);
+  if (m < 1 || m > 12) return null;
+  const daysInMonth = new Date(y, m, 0).getDate();
+  if (d < 1 || d > daysInMonth) return null;
+  return toDateKey(new Date(y, m - 1, d));
+}
+
 export function parseTimeToMinutes(time: string): number {
   const [h, m] = time.split(':').map(Number);
   return h * 60 + m;
@@ -50,17 +72,53 @@ export function getGreetingPeriod(date: Date = new Date()): 'morning' | 'afterno
   return 'evening';
 }
 
+/**
+ * Parses free-typed digits (optionally followed by 'a'/'am'/'p'/'pm') into a
+ * 'HH:mm' time, e.g. "1130p" -> 23:30, "930" -> 09:30, "7a" -> 07:00. A bare
+ * 1-2 digit hour with no meridiem keeps the AM/PM period `time` is currently
+ * in. Returns null if the input can't be parsed into a valid time.
+ */
+export function parseTypedTime(raw: string, time: string): string | null {
+  const match = raw.trim().toLowerCase().match(/^(\d{1,4})\s*([ap]m?)?$/);
+  if (!match) return null;
+  const digits = match[1];
+  const meridiem = match[2];
+
+  let hour: number;
+  let minute: number;
+  if (digits.length <= 2) {
+    hour = parseInt(digits, 10);
+    minute = 0;
+  } else if (digits.length === 3) {
+    hour = parseInt(digits.slice(0, 1), 10);
+    minute = parseInt(digits.slice(1), 10);
+  } else {
+    hour = parseInt(digits.slice(0, 2), 10);
+    minute = parseInt(digits.slice(2), 10);
+  }
+  if (minute > 59) return null;
+
+  let hour24: number;
+  if (meridiem) {
+    if (hour < 1 || hour > 12) return null;
+    hour24 = hour % 12;
+    if (meridiem[0] === 'p') hour24 += 12;
+  } else if (hour === 0 || (hour >= 13 && hour <= 23)) {
+    hour24 = hour;
+  } else if (hour >= 1 && hour <= 12) {
+    const currentlyPM = parseTimeToMinutes(time) >= 12 * 60;
+    hour24 = hour % 12;
+    if (currentlyPM) hour24 += 12;
+  } else {
+    return null;
+  }
+
+  return `${String(hour24).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+}
+
 export function minutesBetween(startTime: string, endTime: string): number {
   const start = parseTimeToMinutes(startTime);
   const end = parseTimeToMinutes(endTime);
   return end >= start ? end - start : 24 * 60 - start + end;
 }
 
-export function isNowWithinWindow(startTime: string, endTime: string, now: Date = new Date()): boolean {
-  const nowMinutes = now.getHours() * 60 + now.getMinutes();
-  const start = parseTimeToMinutes(startTime);
-  const end = parseTimeToMinutes(endTime);
-  if (start === end) return false;
-  if (start < end) return nowMinutes >= start && nowMinutes < end;
-  return nowMinutes >= start || nowMinutes < end;
-}

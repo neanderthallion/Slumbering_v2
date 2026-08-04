@@ -23,6 +23,7 @@ import { todayKey } from '../../utils/date';
 
 import { GreetingHeader } from './GreetingHeader';
 import { TodaysMessageCard } from './TodaysMessageCard';
+import { BedtimeSchedulePanel } from './BedtimeSchedulePanel';
 import { GoalsStatusCard } from './GoalsStatusCard';
 import { JourneyPreviewCard } from './JourneyPreviewCard';
 
@@ -65,6 +66,7 @@ export function HomeScreen() {
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <GreetingHeader greeting={greeting} userName={settings.userName} />
           <TodaysMessageCard message={message} subMessage={subMessage} />
+          <BedtimeSchedulePanel />
           <GoalsStatusCard
             stage={stage}
             todayRecord={todayRecord}

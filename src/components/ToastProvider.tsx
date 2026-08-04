@@ -35,7 +35,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           styles.toast,
           {
             opacity,
-            backgroundColor: theme.mode === 'dark' ? 'rgba(20,18,45,0.95)' : 'rgba(30,30,50,0.92)',
+            backgroundColor: theme.mode === 'dark' ? 'rgba(20,18,45,0.98)' : 'rgba(30,30,50,0.97)',
             borderColor: theme.colors.hairline,
           },
         ]}

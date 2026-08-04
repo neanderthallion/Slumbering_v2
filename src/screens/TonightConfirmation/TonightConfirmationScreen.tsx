@@ -21,12 +21,12 @@ export function TonightConfirmationScreen() {
   const { theme } = useTheme();
   const navigation = useNavigation<Nav>();
   const route = useRoute<Rt>();
-  const { upsertRecord } = useAppData();
+  const { settings, upsertRecord } = useAppData();
   const { showToast } = useToast();
   const goals = route.params.goals;
 
   function handleConfirm() {
-    const record = createNightRecord(todayKey(), goals, 'normal');
+    const record = createNightRecord(todayKey(), goals, 'normal', settings.bedtimeSchedule);
     upsertRecord(record);
     navigation.navigate('Home');
     showToast('Goals saved for tonight');

@@ -16,12 +16,19 @@ export interface NightGoal {
 
 export type NightSource = 'normal' | 'backfilled';
 
+export type SleepConfirmation = 'asPlanned' | 'reportedDifferent';
+
 export interface NightRecord {
   date: string; // 'YYYY-MM-DD'
   goals: NightGoal[];
   goalsSetAt: string | null;
   checkInCompletedAt: string | null;
   source: NightSource;
+  plannedBedtime: string | null; // 'HH:mm', snapshotted from bedtimeSchedule at goal-set time
+  plannedWakeTime: string | null; // 'HH:mm'
+  sleepConfirmation: SleepConfirmation | null;
+  actualBedtime: string | null; // only set when sleepConfirmation === 'reportedDifferent'
+  actualWakeTime: string | null;
 }
 
 export type NightRecordsMap = Record<string, NightRecord>;
@@ -36,35 +43,14 @@ export interface ReminderConfig {
   notificationId: string | null;
 }
 
-export interface AlarmConfig {
-  sound: 'Morning Xylophone' | 'Gentle Chimes' | 'Ocean Drift';
-  vibration: 'Standard' | 'Gentle' | 'Off';
-  snoozeCount: number;
-  snoozeIntervalMinutes: number;
-}
-
-export interface SleepModeToggles {
-  darkMode: boolean;
-  doNotDisturb: boolean;
-  lowerBrightness: boolean;
-  silenceNotifications: boolean;
-  turnOffAlwaysOnDisplay: boolean;
-}
-
-export interface SleepModeConfig {
-  manualActive: boolean;
-  autoActivated: boolean;
+export interface BedtimeSchedule {
   bedtime: string; // 'HH:mm'
   wakeTime: string; // 'HH:mm'
-  daysOfWeek: boolean[]; // length 7, Mon..Sun
-  toggles: SleepModeToggles;
-  alarm: AlarmConfig;
-  activatedAt: string | null; // ISO, set when Sleep Mode actually turns on
-  previousBrightness: number | null;
-  previousThemeMode: ThemeMode | null;
 }
 
 export type SuggestedGoalCategory = Exclude<GoalCategory, 'custom'>;
+
+export type BadgeId = 'firstStep' | 'fullWeek' | 'oneMonth' | 'earlyRiser' | 'welcomeBack';
 
 export interface AppSettings {
   hasOnboarded: boolean;
@@ -78,11 +64,10 @@ export interface AppSettings {
   reminders: {
     setGoals: ReminderConfig;
     checkIn: ReminderConfig;
+    windDown: ReminderConfig;
   };
-  sleepMode: SleepModeConfig;
-  backup: {
-    dropboxConnected: boolean;
-  };
+  bedtimeSchedule: BedtimeSchedule;
+  celebratedAchievementIds: string[];
 }
 
 export type MoonPhase = 'new' | 'crescent' | 'full';
@@ -90,6 +75,23 @@ export type MoonPhase = 'new' | 'crescent' | 'full';
 export interface MilestoneEntry {
   type: 'milestone';
   date: string;
+  id: string;
+  text: string;
+}
+
+export interface EngagementMilestoneEntry {
+  type: 'engagementMilestone';
+  date: string;
+  id: string;
+  threshold: number;
+  text: string;
+}
+
+export interface BadgeEntry {
+  type: 'badge';
+  date: string;
+  id: string;
+  badgeId: BadgeId;
   text: string;
 }
 
@@ -98,4 +100,4 @@ export interface JourneyNightEntry {
   record: NightRecord;
 }
 
-export type JourneyEntry = MilestoneEntry | JourneyNightEntry;
+export type JourneyEntry = MilestoneEntry | JourneyNightEntry | EngagementMilestoneEntry | BadgeEntry;

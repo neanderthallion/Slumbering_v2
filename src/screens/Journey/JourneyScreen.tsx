@@ -14,6 +14,7 @@ import { buildJourneyEntries, computeCompanionMessage, getMoonPhase, lastSevenNi
 import { sortedRecords } from '../../data/nightRecords';
 import { JourneyEntry } from './JourneyEntry';
 import { MilestoneEntry } from './MilestoneEntry';
+import { AchievementEntry } from './AchievementEntry';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Journey'>;
 
@@ -48,7 +49,7 @@ export function JourneyScreen() {
 
         <Card>
           <View style={styles.headerRow}>
-            <MoonIcon phase={bigPhase} size={64} maskColor={theme.colors.bgCard} />
+            <MoonIcon phase={bigPhase} size={64} />
             <View style={{ flex: 1 }}>
               <Text style={{ fontFamily: theme.fonts.displayItalic, fontSize: 16 * theme.textScale, color: theme.colors.textHi }}>
                 {headline}
@@ -60,11 +61,13 @@ export function JourneyScreen() {
           </View>
         </Card>
 
-        <View style={styles.moonRow}>
-          {pastNights.map((n) => (
-            <MoonIcon key={n.date} phase={n.phase} size={22} maskColor={theme.colors.bgBase} />
-          ))}
-        </View>
+        <Card>
+          <View style={styles.moonRow}>
+            {pastNights.map((n) => (
+              <MoonIcon key={n.date} phase={n.phase} size={22} />
+            ))}
+          </View>
+        </Card>
 
         <View style={styles.timeline}>
           <View style={[styles.timelineLine, { backgroundColor: theme.colors.hairline }]} />
@@ -73,13 +76,14 @@ export function JourneyScreen() {
               No nights logged yet. Once you check in, your journey will appear here.
             </Text>
           )}
-          {entries.map((entry, i) =>
-            entry.type === 'night' ? (
-              <JourneyEntry key={`n-${entry.record.date}`} record={entry.record} />
-            ) : (
-              <MilestoneEntry key={`m-${entry.date}-${i}`} text={entry.text} />
-            )
-          )}
+          {entries.map((entry, i) => {
+            if (entry.type === 'night') return <JourneyEntry key={`n-${entry.record.date}`} record={entry.record} />;
+            if (entry.type === 'milestone') return <MilestoneEntry key={`m-${entry.date}-${i}`} text={entry.text} />;
+            if (entry.type === 'engagementMilestone') {
+              return <AchievementEntry key={`e-${entry.date}-${i}`} kind="engagementMilestone" text={entry.text} />;
+            }
+            return <AchievementEntry key={`b-${entry.date}-${i}`} kind="badge" text={entry.text} />;
+          })}
         </View>
       </ScrollView>
 
@@ -97,7 +101,7 @@ const styles = StyleSheet.create({
   content: { padding: 20, paddingBottom: 80 },
   backRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 14 },
   headerRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
-  moonRow: { flexDirection: 'row', gap: 8, marginVertical: 18 },
+  moonRow: { flexDirection: 'row', gap: 8 },
   timeline: { paddingLeft: 8, position: 'relative' },
   timelineLine: { position: 'absolute', left: 12, top: 6, bottom: 6, width: 1 },
   fab: {

@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
-import { View, Text, ScrollView, Pressable, StyleSheet, Platform } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { View, Text, TextInput, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -15,12 +14,12 @@ import { SegmentedTabs } from '../../components/SegmentedTabs';
 import { GoalListItem } from '../../components/GoalListItem';
 import { PillToggle } from '../../components/PillToggle';
 import { GOAL_CATEGORIES } from '../../data/suggestedGoals';
+import { createNightRecord } from '../../data/nightRecords';
 import { GoalCategory, NightGoal, SuggestedGoalCategory } from '../../types/models';
 import { makeId } from '../../utils/id';
-import { addDays, formatFriendlyDate, todayKey, toDateKey } from '../../utils/date';
+import { addDays, formatFriendlyDate, todayKey, toDDMMYY, parseDDMMYY } from '../../utils/date';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'AddPastRecord'>;
-const MAX_GOALS = 2;
 
 export function AddPastRecordScreen() {
   const { theme } = useTheme();
@@ -28,12 +27,16 @@ export function AddPastRecordScreen() {
   const { upsertRecord, settings } = useAppData();
   const { showToast } = useToast();
 
-  const [date, setDate] = useState(addDays(todayKey(), -1));
-  const [pickerOpen, setPickerOpen] = useState(false);
+  const yesterday = addDays(todayKey(), -1);
+  const [date, setDate] = useState(yesterday);
+  const [editingDate, setEditingDate] = useState(false);
+  const [dd, setDd] = useState('');
+  const [mm, setMm] = useState('');
+  const [yy, setYy] = useState('');
+  const mmRef = useRef<TextInput>(null);
+  const yyRef = useRef<TextInput>(null);
   const [category, setCategory] = useState<SuggestedGoalCategory>('bedtime');
   const [selected, setSelected] = useState<{ goalId: string; label: string; category: GoalCategory; achieved: boolean | null }[]>([]);
-
-  const maxReached = selected.length >= MAX_GOALS;
 
   function toggleGoal(label: string) {
     const existing = selected.find((s) => s.label === label);
@@ -41,7 +44,6 @@ export function AddPastRecordScreen() {
       setSelected((prev) => prev.filter((s) => s.label !== label));
       return;
     }
-    if (maxReached) return;
     setSelected((prev) => [...prev, { goalId: makeId('goal'), label, category, achieved: null }]);
   }
 
@@ -50,6 +52,28 @@ export function AddPastRecordScreen() {
   }
 
   const canSave = selected.length > 0 && selected.every((s) => s.achieved !== null);
+
+  function openDateEditor() {
+    const parts = toDDMMYY(date);
+    setDd(parts.dd);
+    setMm(parts.mm);
+    setYy(parts.yy);
+    setEditingDate(true);
+  }
+
+  function confirmDate() {
+    const parsed = parseDDMMYY(dd, mm, yy);
+    if (!parsed) {
+      showToast('Enter a valid date (dd/mm/yy)');
+      return;
+    }
+    if (parsed > yesterday) {
+      showToast('Pick a date before today');
+      return;
+    }
+    setDate(parsed);
+    setEditingDate(false);
+  }
 
   function handleSave() {
     if (!canSave) return;
@@ -60,11 +84,8 @@ export function AddPastRecordScreen() {
       achieved: s.achieved,
     }));
     upsertRecord({
-      date,
-      goals,
-      goalsSetAt: new Date().toISOString(),
+      ...createNightRecord(date, goals, 'backfilled'),
       checkInCompletedAt: new Date().toISOString(),
-      source: 'backfilled',
     });
     navigation.goBack();
     showToast('Past record added');
@@ -81,21 +102,61 @@ export function AddPastRecordScreen() {
           <Text style={{ fontFamily: theme.fonts.bodyBold, fontSize: 11, letterSpacing: 0.6, textTransform: 'uppercase', color: theme.colors.textLow, marginBottom: 6 }}>
             Date
           </Text>
-          <Pressable onPress={() => setPickerOpen(true)}>
-            <Text style={{ fontFamily: theme.fonts.display, fontSize: 18, color: theme.colors.textHi }}>
-              {formatFriendlyDate(date)}
-            </Text>
-          </Pressable>
-          {pickerOpen && (
-            <DateTimePicker
-              value={new Date(date + 'T00:00:00')}
-              mode="date"
-              maximumDate={new Date(addDays(todayKey(), -1) + 'T00:00:00')}
-              onChange={(event, selectedDate) => {
-                setPickerOpen(Platform.OS === 'ios');
-                if (event.type === 'set' && selectedDate) setDate(toDateKey(selectedDate));
-              }}
-            />
+          {editingDate ? (
+            <View>
+              <View style={styles.dateInputRow}>
+                <TextInput
+                  value={dd}
+                  onChangeText={(t) => {
+                    const v = t.replace(/[^0-9]/g, '').slice(0, 2);
+                    setDd(v);
+                    if (v.length === 2) mmRef.current?.focus();
+                  }}
+                  placeholder="DD"
+                  placeholderTextColor={theme.colors.textLow}
+                  keyboardType="number-pad"
+                  maxLength={2}
+                  style={[styles.dateInput, { backgroundColor: theme.colors.bgCardStrong, borderColor: theme.colors.hairline, color: theme.colors.textHi }]}
+                />
+                <Text style={{ fontFamily: theme.fonts.bodyBold, fontSize: 18, color: theme.colors.textLow }}>/</Text>
+                <TextInput
+                  ref={mmRef}
+                  value={mm}
+                  onChangeText={(t) => {
+                    const v = t.replace(/[^0-9]/g, '').slice(0, 2);
+                    setMm(v);
+                    if (v.length === 2) yyRef.current?.focus();
+                  }}
+                  placeholder="MM"
+                  placeholderTextColor={theme.colors.textLow}
+                  keyboardType="number-pad"
+                  maxLength={2}
+                  style={[styles.dateInput, { backgroundColor: theme.colors.bgCardStrong, borderColor: theme.colors.hairline, color: theme.colors.textHi }]}
+                />
+                <Text style={{ fontFamily: theme.fonts.bodyBold, fontSize: 18, color: theme.colors.textLow }}>/</Text>
+                <TextInput
+                  ref={yyRef}
+                  value={yy}
+                  onChangeText={(t) => setYy(t.replace(/[^0-9]/g, '').slice(0, 2))}
+                  placeholder="YY"
+                  placeholderTextColor={theme.colors.textLow}
+                  keyboardType="number-pad"
+                  maxLength={2}
+                  onSubmitEditing={confirmDate}
+                  style={[styles.dateInput, { backgroundColor: theme.colors.bgCardStrong, borderColor: theme.colors.hairline, color: theme.colors.textHi }]}
+                />
+              </View>
+              <View style={styles.btnRow}>
+                <Button label="Cancel" variant="ghost" onPress={() => setEditingDate(false)} />
+                <Button label="Set date" variant="primary" onPress={confirmDate} />
+              </View>
+            </View>
+          ) : (
+            <Pressable onPress={openDateEditor}>
+              <Text style={{ fontFamily: theme.fonts.display, fontSize: 18, color: theme.colors.textHi }}>
+                {formatFriendlyDate(date)}
+              </Text>
+            </Pressable>
           )}
         </Card>
 
@@ -111,7 +172,6 @@ export function AddPastRecordScreen() {
               key={label}
               label={label}
               checked={selected.some((s) => s.label === label)}
-              disabled={!selected.some((s) => s.label === label) && maxReached}
               onPress={() => toggleGoal(label)}
               isLast={i === arr.length - 1}
             />
@@ -147,4 +207,13 @@ const styles = StyleSheet.create({
   content: { padding: 20, paddingBottom: 60 },
   achieveRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12 },
   btnRow: { flexDirection: 'row', gap: 10, marginTop: 8 },
+  dateInputRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  dateInput: {
+    width: 52,
+    borderRadius: 12,
+    borderWidth: 1,
+    paddingVertical: 10,
+    textAlign: 'center',
+    fontSize: 18,
+  },
 });

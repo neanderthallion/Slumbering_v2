@@ -22,8 +22,6 @@ import { todayKey } from '../../utils/date';
 type Nav = NativeStackNavigationProp<RootStackParamList, 'GoalPicker'>;
 type SelectedGoal = { goalId: string; label: string; category: GoalCategory };
 
-const MAX_GOALS = 2;
-
 export function GoalPickerScreen() {
   const { theme } = useTheme();
   const navigation = useNavigation<Nav>();
@@ -46,7 +44,6 @@ export function GoalPickerScreen() {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editDraft, setEditDraft] = useState('');
 
-  const maxReached = selected.length >= MAX_GOALS;
   const suggestions = settings.suggestedGoals[category];
 
   function isSelected(label: string) {
@@ -59,14 +56,13 @@ export function GoalPickerScreen() {
       if (disclaimerFor === label) setDisclaimerFor(null);
       return;
     }
-    if (maxReached) return;
     setSelected((prev) => [...prev, { goalId: makeId('goal'), label, category }]);
     if (looksLikeUnhealthyBedtime(category, label)) setDisclaimerFor(label);
   }
 
   function addCustomGoal() {
     const text = customText.trim();
-    if (!text || maxReached) return;
+    if (!text) return;
     setSelected((prev) => [...prev, { goalId: makeId('goal'), label: text, category }]);
     setCustomText('');
     if (looksLikeUnhealthyBedtime(category, text)) setDisclaimerFor(text);
@@ -109,7 +105,6 @@ export function GoalPickerScreen() {
       if (alreadySelected) {
         return prev.map((s) => (s.label === originalLabel ? { ...s, label: newLabel } : s));
       }
-      if (prev.length >= MAX_GOALS) return prev;
       return [...prev, { goalId: makeId('goal'), label: newLabel, category }];
     });
 
@@ -145,7 +140,7 @@ export function GoalPickerScreen() {
           Pick your goals for tonight
         </Text>
         <Text style={{ fontFamily: theme.fonts.body, fontSize: 12 * theme.textScale, color: theme.colors.textLow, marginBottom: 16 }}>
-          {selected.length} of {MAX_GOALS} selected
+          {selected.length} selected
         </Text>
 
         <SegmentedTabs
@@ -165,7 +160,6 @@ export function GoalPickerScreen() {
                 key={i}
                 label={label}
                 checked={checked}
-                disabled={!checked && maxReached && editingIndex !== i}
                 isEditing={editingIndex === i}
                 editValue={editDraft}
                 onToggle={() => toggleSuggested(label)}
@@ -192,7 +186,6 @@ export function GoalPickerScreen() {
               onChangeText={setCustomText}
               placeholder="Add your own..."
               placeholderTextColor={theme.colors.textLow}
-              editable={!maxReached}
               style={[
                 styles.input,
                 { backgroundColor: theme.colors.bgCardStrong, borderColor: theme.colors.hairline, color: theme.colors.textHi },
@@ -200,8 +193,8 @@ export function GoalPickerScreen() {
             />
             <Pressable
               onPress={addCustomGoal}
-              disabled={maxReached || !customText.trim()}
-              style={[styles.addBtn, { borderColor: theme.colors.hairline, opacity: maxReached || !customText.trim() ? 0.5 : 1 }]}
+              disabled={!customText.trim()}
+              style={[styles.addBtn, { borderColor: theme.colors.hairline, opacity: !customText.trim() ? 0.5 : 1 }]}
             >
               <Text style={{ fontFamily: theme.fonts.bodyBold, fontSize: 13, color: theme.colors.textHi }}>Add</Text>
             </Pressable>
