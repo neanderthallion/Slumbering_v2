@@ -1,31 +1,33 @@
 {
   "expo": {
     "name": "slumbering",
-    "slug": "slumbering",
+    "slug": "slumbering-tmo",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/illustrations/Mascot.png",
     "userInterfaceStyle": "light",
-    "ios": {
-      "supportsTablet": true
-    },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "foregroundImage": "./assets/illustrations/Mascot.png",
+        "monochromeImage": "./assets/illustrations/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
+      "predictiveBackGestureEnabled": false,
+      "package": "com.dauuu.slumbering"
     },
     "plugins": [
       "expo-font",
       "expo-splash-screen",
       "@react-native-community/datetimepicker",
-      "expo-sharing"
-    ]
+      "expo-status-bar",
+      "expo-sharing",
+      "expo-notifications"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "0e12502d-f8cc-41de-a0d3-4f009c64c83a"
+      }
+    },
+    "owner": "dauuu"
   }
 }

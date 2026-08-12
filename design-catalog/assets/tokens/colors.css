@@ -1,0 +1,109 @@
+/* Slumbering color tokens.
+   One dusk-purple + gold/blush/sage palette shared by both themes — only
+   surface and text colors invert light↔dark (CLAUDE.md §7). Two families
+   never flip with theme:
+     - the CTA gradient (pink → gold, diagonal) used on primary buttons,
+       active segmented/tab pills, and active toggles
+     - the "night" surface family (Bedtime Schedule panel, sleep content),
+       always flat dusk-dark regardless of the app's active theme
+   Light theme lives on :root (daytime-friendly warm cream). Dark theme
+   ("bedtime mode") overrides via [data-theme="dark"]. */
+:root{
+  /* base palette */
+  --dusk-950:#211c3e;
+  --dusk-900:#241e42;
+  --dusk-800:#383163;
+  --dusk-700:#46406f;
+  --dusk-600:#52487f;
+  --dusk-500:#6e5fa0;
+  --dusk-400:#8a7bb0;
+  --dusk-300:#b6aad8;
+  --dusk-200:#d8d0ec;
+  --dusk-100:#eee9f8;
+
+  --cream-100:#fffdf8;
+  --cream-200:#fbf3e4;
+  --cream-300:#f2e8d6;
+
+  --moon-glow-100:#fff3d2;
+  --moon-glow-200:#fce2a6;
+  --moon-glow-300:#f7c877;
+
+  --blush-100:#fde3e9;
+  --blush-200:#f4b8c4;
+  --blush-300:#f2a5c2;
+
+  --sage-100:#e2ecdf;
+  --sage-200:#b7cdb0;
+  --sage-300:#8fae86;
+
+  /* semantic — light theme (default) */
+  --surface-page:var(--cream-200);
+  --surface-card:var(--cream-100);
+  --surface-card-alt:var(--cream-100);
+  --surface-sunken:var(--cream-300);
+  --border-subtle:rgba(110,95,160,0.28);
+  --border-hairline:rgba(110,95,160,0.15);
+
+  --text-primary:var(--dusk-800);
+  --text-secondary:#6e6390;
+  --text-tertiary:var(--dusk-500);
+  /* the gradient is a light pink/gold surface in BOTH themes, so the ink
+     sitting on it is always dark — this token does not flip with theme */
+  --text-on-accent:var(--dusk-900);
+  /* text sitting on a SOLID --accent-primary fill (e.g. the selected Text
+     Size pill in Settings) — unlike text-on-accent, this one flips with
+     theme because accent-primary itself flips (dark ink in light theme,
+     gold in dark theme) */
+  --text-on-primary-solid:var(--cream-200);
+  --text-on-night:var(--cream-200);
+  --text-on-night-dim:var(--dusk-300);
+
+  --accent-gold:#c99a3e;
+  --accent-blush:#c65f88;
+  --accent-sage:#4c7a41;
+  --accent-primary:var(--dusk-800);
+
+  /* the CTA gradient — pink → gold, ~120deg. Drives .m-btn.primary, active
+     .m-tab/.m-yesno states, .m-toggle.on, badge ribbon fill.
+     Fixed across themes (see comment above). */
+  --cta-gradient:linear-gradient(120deg, var(--blush-300) 0%, var(--moon-glow-300) 100%);
+  --shadow-tint:56,49,99;
+
+  /* the "night" family: always flat dusk-ink, used for the Bedtime Schedule
+     panel and other sleep-time content regardless of the app's theme */
+  --night-surface:var(--dusk-900);
+  --night-surface-soft:var(--dusk-800);
+  --night-text:var(--cream-200);
+  --night-text-dim:var(--dusk-300);
+  --night-accent:var(--moon-glow-200);
+
+  --focus-ring:var(--dusk-500);
+}
+
+[data-theme="dark"]{
+  --surface-page:var(--dusk-900);
+  --surface-card:var(--dusk-800);
+  --surface-card-alt:var(--dusk-800);
+  --surface-sunken:var(--dusk-950);
+  --border-subtle:rgba(252,226,166,0.18);
+  --border-hairline:rgba(252,226,166,0.12);
+
+  --text-primary:var(--cream-200);
+  --text-secondary:var(--dusk-300);
+  --text-tertiary:var(--dusk-400);
+  --text-on-accent:var(--dusk-900);
+  --text-on-primary-solid:var(--dusk-900);
+  --text-on-night:var(--cream-200);
+  --text-on-night-dim:var(--dusk-300);
+
+  --accent-gold:var(--moon-glow-200);
+  --accent-blush:var(--blush-300);
+  --accent-sage:var(--sage-300);
+  --accent-primary:var(--moon-glow-200);
+
+  --cta-gradient:linear-gradient(120deg, var(--blush-300) 0%, var(--moon-glow-300) 100%);
+  --shadow-tint:0,0,0;
+
+  --focus-ring:var(--moon-glow-200);
+}

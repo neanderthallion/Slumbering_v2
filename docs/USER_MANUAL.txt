@@ -1,0 +1,202 @@
+==================================================
+ SLUMBERING — USER MANUAL
+==================================================
+
+Welcome to Slumbering, a friendly companion app that helps you build
+better sleep habits, one small goal at a time. No pressure, no shame —
+just gentle encouragement and a clear picture of your progress.
+
+This guide covers everything you'll see and do in the app.
+
+
+--------------------------------------------------
+1. GETTING STARTED
+--------------------------------------------------
+
+The first time you open Slumbering, you'll be asked to:
+
+  - Tell us what to call you (optional — you can skip this or change
+    it later in Settings).
+  - Choose Light or Dark theme.
+
+That's it — tap "Get started" and you're in.
+
+
+--------------------------------------------------
+2. HOME SCREEN
+--------------------------------------------------
+
+Home is where you land every time you open the app. It shows:
+
+  - A greeting with your name and a short encouraging message.
+  - Your main action for right now (see below).
+  - A quick look at your last 7 nights.
+  - Your current bedtime and wake-up schedule.
+
+What you'll see in the middle of the screen changes depending on
+where you are in your day:
+
+  - No goals picked yet tonight -> a button to pick your goals.
+  - Goals already picked -> a summary of tonight's goals, with an
+    "Edit" link if you want to change them.
+  - Morning, ready to check in -> a button asking how last night went.
+  - Everything done for today -> a simple "come back tomorrow" note.
+
+Tap the gear icon (top right) any time to open Settings.
+
+
+--------------------------------------------------
+3. SETTING TONIGHT'S GOALS
+--------------------------------------------------
+
+Tap "Pick your goals for tonight" from Home to choose what you want
+to focus on. A couple of tips:
+
+  - Goals are grouped into three categories: Bedtime, Unwind, and
+    Relaxation. Tap a category to see its suggestions.
+  - Pick as many as you like — but sticking to 1–2 goals is usually
+    easier to follow through on.
+  - Tap the pencil icon next to any suggested goal to rename it to
+    fit your own routine.
+  - Don't see what you want? Type your own goal into "Add your own…"
+    and tap Add.
+  - If you pick a very late bedtime, the app will gently check that
+    you meant to — you can continue anyway or change the goal.
+
+When you're happy with your choices, tap "Confirm goals". You'll see
+a final recap screen — tap Confirm again to lock them in for the
+night.
+
+
+--------------------------------------------------
+4. CHECKING IN
+--------------------------------------------------
+
+The next time you open the app, Home will ask how last night went.
+
+  - First you'll be asked a simple yes/no question: did you keep to
+    your planned bedtime and wake time?
+      - Answer "Yes" and you're done with the timing question —
+        no extra typing needed.
+      - Answer "No" and you can enter what time you actually went to
+        bed and woke up, if you'd like.
+  - Next, mark each of last night's goals as achieved or not.
+  - Tap Confirm to save your check-in.
+
+If a check-in unlocks a new badge, you'll see a small celebration
+before returning Home. Missing a goal is never treated as a failure —
+you'll never see language like "streak broken" in this app. Every day
+you show up is a win.
+
+
+--------------------------------------------------
+5. YOUR JOURNEY
+--------------------------------------------------
+
+Tap "See all" on the Journey preview (or find it from Home) to see
+the full picture:
+
+  - An all-time success ring showing the percentage of nights you've
+    fully achieved your goals, plus your total nights logged and your
+    longest streak.
+  - Your badges — seven of them in total, earned by hitting different
+    milestones (first check-in, consistent weeks, cumulative nights,
+    returning after a break, and more). Locked badges appear dimmed
+    until you earn them.
+  - A full history of every night you've logged, most recent first,
+    including notes for nights you added later and milestones like
+    your very first night on Slumbering.
+
+Tap the calendar button in the corner to add a night you forgot to
+log (see section 6).
+
+
+--------------------------------------------------
+6. ADDING A PAST RECORD
+--------------------------------------------------
+
+Forgot to log a night? No problem. From the Journey screen, tap the
+floating calendar button to open "Add a past record":
+
+  - Choose the date.
+  - Pick the goals that applied that night.
+  - Mark which ones you achieved.
+  - Optionally, add the actual bedtime and wake-up time if you
+    remember them.
+  - Tap Save.
+
+These entries are clearly marked "added later" in your Journey
+timeline, so your history stays honest and easy to follow.
+
+
+--------------------------------------------------
+7. BEDTIME SCHEDULE & STATS
+--------------------------------------------------
+
+Your current bedtime and wake-up time are always shown on Home. Tap
+either time to change it right there.
+
+Tap the Bedtime Schedule panel itself to open a more detailed view
+with:
+
+  - Week or Month view (switch between them at the top).
+  - A chart of your bedtime over time, compared to your target, with
+    a regularity rating (how consistent you've been).
+  - The same chart for your wake-up time.
+  - A chart of how much sleep you've been getting each night.
+  - One personalized tip based on whatever matters most right now
+    (for example, getting more total sleep, or keeping a steadier
+    bedtime).
+
+
+--------------------------------------------------
+8. SETTINGS
+--------------------------------------------------
+
+Open Settings from the gear icon on Home. Everything is on one
+scrolling screen:
+
+  PROFILE
+    Change the name Slumbering uses to greet you.
+
+  REMINDERS
+    Three optional daily reminders, each with its own on/off switch:
+      - Set goals reminder — nudges you to pick tonight's goals.
+      - Check-in reminder — nudges you to check in the next morning.
+      - Unwind reminder — reminds you shortly before your bedtime.
+    Turning a reminder on will ask for notification permission the
+    first time.
+
+  APPEARANCE
+    - Theme: Light or Dark.
+    - Text size: Small, Medium, or Large.
+    Both changes apply instantly across the whole app.
+
+  BACKUP & RESTORE
+    - Export backup: saves all your goals, history, and settings to a
+      file you can keep somewhere safe.
+    - Import backup: restores everything from a previously exported
+      file. This replaces your current data, so you'll be asked to
+      confirm before it happens.
+
+  APP INFORMATION
+    - App version.
+    - Sleep science references — the research behind how the app is
+      designed.
+    - Terms of service, Contact us, and Feedback links.
+
+
+--------------------------------------------------
+9. A FEW THINGS TO KEEP IN MIND
+--------------------------------------------------
+
+  - Small goals count. You don't need a perfect night to make
+    progress — partial credit still moves you forward.
+  - Missing a night, or several, is never punished. Come back
+    whenever you're ready and pick up where you left off.
+  - Your data stays on your device unless you export a backup
+    yourself — there's no account or cloud sync.
+  - Everything in this app is meant to be quick. If a screen is
+    asking you to fill in a lot of detail, you can usually skip it.
+
+Sleep well.

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Add Past Record — Slumbering Design Catalog</title>
+<link rel="stylesheet" href="../assets/catalog.css">
+</head>
+<body>
+
+<nav class="sidebar">
+  <a class="sidebar-brand" href="../index.html"><img src="../assets/illustrations/Slumbering_title.png" alt="Slumbering"></a>
+  <div class="sidebar-group"><h3>Overview</h3><ul><li><a href="../index.html">Catalog home</a></li></ul></div>
+  <div class="sidebar-group">
+    <h3>Screens</h3>
+    <ul>
+      <li><a href="onboarding.html">Onboarding</a></li>
+      <li><a href="home.html">Home</a></li>
+      <li><a href="goal-picker.html">Goal Picker</a></li>
+      <li><a href="tonight-confirmation.html">Tonight Confirmation</a></li>
+      <li><a href="check-in.html">Check-In</a></li>
+      <li><a href="journey.html">Journey</a></li>
+      <li><a href="add-past-record.html" class="active">Add Past Record (modal)</a></li>
+      <li><a href="bedtime.html">Bedtime</a></li>
+      <li><a href="settings.html">Settings</a></li>
+      <li><a href="sleep-science.html">Sleep Science</a></li>
+    </ul>
+  </div>
+  <div class="sidebar-group"><h3>Reference</h3><ul><li><a href="../popups.html">Popups &amp; dialogs</a></li><li><a href="../components.html">Components</a></li><li><a href="../tokens.html">Design tokens</a></li></ul></div>
+</nav>
+
+<main class="main">
+  <div class="page-header">
+    <p class="eyebrow">Screen · Route "AddPastRecord"</p>
+    <h1 class="page-title">Add Past Record</h1>
+    <p class="page-lede"><code>src/screens/AddPastRecord/AddPastRecordScreen.tsx</code> — params: <code>{ date?: string }</code>. Manually backfills, or edits, a past date's goals and achieved status. Titled "Edit past record" when the date already has one.</p>
+    <div class="chip-row">
+      <span class="chip chip-modal"><strong>presentation: 'modal'</strong> — the only screen in the stack that opens as a native modal sheet</span>
+      <span class="chip">Close → <code>navigation.goBack()</code></span>
+    </div>
+  </div>
+
+  <div class="screen-layout">
+    <div class="mockup-col">
+      <div class="mockup-label"><span>Preview</span><button class="theme-toggle" onclick="toggleMockupTheme(this)">Preview: dark</button></div>
+      <div class="phone-frame" data-theme="dark">
+        <div class="phone-screen">
+          <div style="height:14px;display:flex;justify-content:center;padding-top:8px"><div style="width:36px;height:4px;border-radius:2px;background:var(--border-subtle)"></div></div>
+          <div class="screen-pad" style="padding-top:6px">
+            <h2 style="font:var(--text-display-sm);font-family:var(--font-display);margin:0 0 var(--space-4)">Edit past record</h2>
+
+            <div class="m-card">
+              <p class="m-eyebrow">Date</p>
+              <p style="font-weight:700;font-size:20px;color:var(--text-primary);margin:2px 0 0">Aug 7, 2026</p>
+            </div>
+
+            <div class="m-tabs" style="margin-bottom:var(--space-4)">
+              <button class="m-tab active">Bedtime</button>
+              <button class="m-tab">Unwind</button>
+              <button class="m-tab">Relaxation</button>
+            </div>
+
+            <div class="m-card">
+              <div class="m-goal-row"><span class="m-checkbox checked">✓</span><span class="m-body" style="flex:1;color:var(--text-primary)">Sleep before 11:00 PM</span><span style="opacity:.55">✎</span></div>
+              <div class="m-goal-row"><span class="m-checkbox"></span><span class="m-body" style="flex:1;color:var(--text-primary)">Be in bed by 10:45 PM</span><span style="opacity:.55">✎</span></div>
+              <div class="m-goal-row"><span class="m-checkbox checked">✓</span><span class="m-body" style="flex:1;color:var(--text-primary)">Wake up at 5:30 AM</span><span style="opacity:.55">✎</span></div>
+              <div class="m-row" style="margin-top:var(--space-4)">
+                <div style="flex:1;background:var(--surface-sunken);border-radius:var(--radius-pill);padding:13px 18px;color:var(--text-tertiary);font:var(--text-body)">Add your own…</div>
+                <button class="m-btn ghost" style="padding:13px 20px">Add</button>
+              </div>
+            </div>
+
+            <div class="m-card">
+              <p class="m-eyebrow">Did you achieve these?</p>
+              <div class="m-goal-row"><span class="m-body" style="flex:1;color:var(--text-primary)">Sleep before 11:00 PM</span><div class="m-yesno"><button>No</button><button class="selected">Yes</button></div></div>
+              <div class="m-goal-row"><span class="m-body" style="flex:1;color:var(--text-primary)">Wake up at 5:30 AM</span><div class="m-yesno"><button>No</button><button class="selected">Yes</button></div></div>
+            </div>
+
+            <div class="m-card">
+              <div class="m-between"><span class="m-eyebrow" style="margin:0">Sleep schedule</span><div class="m-toggle"></div></div>
+              <p class="m-body" style="margin-top:6px">Optional — add if you remember what time you went to bed and woke up.</p>
+            </div>
+
+            <div class="m-row" style="margin-top:var(--space-4)">
+              <button class="m-btn ghost" style="flex:1">Cancel</button>
+              <button class="m-btn primary" style="flex:1">Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notes-col">
+      <div class="notes-section">
+        <h2>Purpose</h2>
+        <p>Lets a user log — or correct — a night they forgot to record at the time. Records created here are tagged <code>source: 'backfilled'</code> and show "· Added later" in the Journey timeline.</p>
+      </div>
+      <div class="notes-section">
+        <h2>Data &amp; state</h2>
+        <ul>
+          <li>Date field defaults to yesterday; tapping it opens an inline date entry. Dates ≥ today are rejected with a toast.</li>
+          <li>Goal selection reuses <code>settings.suggestedGoals[category]</code>, same category tabs as Goal Picker — including the pencil-icon relabel affordance, but here it edits a <strong>local-only copy</strong>, never <code>settings.suggestedGoals</code> itself (the one deliberate exception to the Goal Picker rule).</li>
+          <li>"Did you achieve these?" only appears once ≥1 goal is selected — one Yes/No pill per selected goal.</li>
+          <li>Sleep Schedule is an optional toggle section — switching it on reveals actual bedtime/wake time fields that feed the same ±15 min delta classification as Check-In.</li>
+        </ul>
+      </div>
+      <div class="notes-section">
+        <h2>Conditional states</h2>
+        <p>Save stays disabled until every selected goal has an achieved value (Yes/No) filled in.</p>
+      </div>
+      <div class="notes-section">
+        <h2>User actions &amp; navigation</h2>
+        <ul>
+          <li>Cancel → back (dismiss modal)</li>
+          <li>Save → builds/updates a backfilled <code>NightRecord</code>, saves, goes back to <a class="nav-link" href="journey.html">Journey</a>, shows a "saved" <a class="nav-link" href="../popups.html#toast">toast</a></li>
+        </ul>
+      </div>
+      <div class="notes-section">
+        <h2>Components used</h2>
+        <p><a class="nav-link" href="../components.html#card">Card</a>, <a class="nav-link" href="../components.html#tabs">Category tabs</a>, <a class="nav-link" href="../components.html#checkbox">Checkbox</a>, <a class="nav-link" href="../components.html#yesno">Yes/No pill</a>, <a class="nav-link" href="../components.html#toggle">Toggle</a>, <a class="nav-link" href="../components.html#button">Button</a>.</p>
+      </div>
+    </div>
+  </div>
+</main>
+<script src="../assets/catalog.js"></script>
+</body>
+</html>

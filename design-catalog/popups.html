@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Popups &amp; Dialogs — Slumbering Design Catalog</title>
+<link rel="stylesheet" href="assets/catalog.css">
+</head>
+<body>
+
+<nav class="sidebar">
+  <a class="sidebar-brand" href="index.html"><img src="assets/illustrations/Slumbering_title.png" alt="Slumbering"></a>
+  <div class="sidebar-group"><h3>Overview</h3><ul><li><a href="index.html">Catalog home</a></li></ul></div>
+  <div class="sidebar-group">
+    <h3>Screens</h3>
+    <ul>
+      <li><a href="screens/onboarding.html">Onboarding</a></li>
+      <li><a href="screens/home.html">Home</a></li>
+      <li><a href="screens/goal-picker.html">Goal Picker</a></li>
+      <li><a href="screens/tonight-confirmation.html">Tonight Confirmation</a></li>
+      <li><a href="screens/check-in.html">Check-In</a></li>
+      <li><a href="screens/journey.html">Journey</a></li>
+      <li><a href="screens/add-past-record.html">Add Past Record (modal)</a></li>
+      <li><a href="screens/bedtime.html">Bedtime</a></li>
+      <li><a href="screens/settings.html">Settings</a></li>
+      <li><a href="screens/sleep-science.html">Sleep Science</a></li>
+    </ul>
+  </div>
+  <div class="sidebar-group"><h3>Reference</h3><ul><li><a href="popups.html" class="active">Popups &amp; dialogs</a></li><li><a href="components.html">Components</a></li><li><a href="tokens.html">Design tokens</a></li></ul></div>
+</nav>
+
+<main class="main">
+  <div class="page-header">
+    <p class="eyebrow">Reference</p>
+    <h1 class="page-title">Popups &amp; dialogs</h1>
+    <p class="page-lede">Every overlay/interruption in the app — from a true full-screen <code>Modal</code> to an inline warning box to a passive toast. None of these are separate navigator routes; they're rendered conditionally inside whichever screen triggers them.</p>
+  </div>
+
+  <div class="gallery-section" id="celebration">
+    <h2>Achievement Celebration modal</h2>
+    <p class="desc"><code>features/achievements/components/CelebrationModal.tsx</code> — React Native <code>&lt;Modal transparent visible animationType="fade"&gt;</code>, full-screen dark scrim behind a centered card.</p>
+    <div class="screen-layout" style="grid-template-columns: 340px 1fr">
+      <div class="phone-frame" data-theme="dark" style="max-width:320px">
+        <div class="phone-screen" style="height:420px;display:flex;align-items:center;justify-content:center;background:rgba(33,28,62,0.6)">
+          <div class="m-card" style="width:80%;text-align:center;box-shadow:var(--shadow-panel)">
+            <img src="assets/illustrations/luna-moon-mascot.svg" alt="" style="width:52px;margin:0 auto 10px">
+            <p class="m-title" style="color:var(--text-primary)">Badge earned!</p>
+            <div class="m-badge" style="margin:10px auto"><div class="m-badge-icon"><span class="star">★</span></div><div class="m-badge-ribbon">Full week</div></div>
+            <p style="font-weight:700;color:var(--accent-gold);margin-top:8px">Full Week</p>
+            <p class="m-body" style="margin:4px 0 var(--space-4);color:var(--text-primary)">7 calendar-consecutive nights with at least one goal achieved each night.</p>
+            <button class="m-btn primary block">Close</button>
+          </div>
+        </div>
+      </div>
+      <table class="spec-table">
+        <tr><th>Trigger</th><td><a class="nav-link" href="screens/check-in.html">Check-In</a>, after Confirm, when badge evaluation returns ≥1 new unlock dated today (not already in <code>settings.celebratedAchievementIds</code>).</td></tr>
+        <tr><th>Content</th><td>Mascot, a title that varies by unlock type (badge-specific / singular / plural copy). Badge unlocks show the badge medallion + name (gold) + description. Milestone/engagement unlocks show plain sage text instead — never phrased around what was missed.</td></tr>
+        <tr><th>Actions</th><td>Single primary <strong>Close</strong> button → closes the modal, then navigates to Home and fires the pending check-in toast.</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="gallery-section" id="badge-info">
+    <h2>Badge Info modal</h2>
+    <p class="desc">Same full-screen scrim/card pattern as the celebration modal — <code>features/achievements/components/</code>.</p>
+    <div class="screen-layout" style="grid-template-columns: 340px 1fr">
+      <div class="phone-frame" data-theme="dark" style="max-width:320px">
+        <div class="phone-screen" style="height:380px;display:flex;align-items:center;justify-content:center;background:rgba(33,28,62,0.6)">
+          <div class="m-card" style="width:80%;text-align:center;box-shadow:var(--shadow-panel)">
+            <div class="m-badge locked" style="margin:0 auto 10px;width:96px"><div class="m-badge-icon" style="width:96px;height:96px"><span class="star" style="font-size:30px">★</span></div><div class="m-badge-ribbon" style="width:80%">One month</div></div>
+            <p style="font-weight:700;color:var(--text-primary);margin-top:8px">One Month</p>
+            <p class="m-body" style="margin:4px 0 var(--space-4);color:var(--text-primary)">Cumulative, non-consecutive count of 30 checked-in nights all-time.</p>
+            <button class="m-btn primary block">Close</button>
+          </div>
+        </div>
+      </div>
+      <table class="spec-table">
+        <tr><th>Trigger</th><td><a class="nav-link" href="screens/journey.html">Journey</a>, tapping any of the 7 badge medallions (earned or locked).</td></tr>
+        <tr><th>Content</th><td>Large badge medallion (dim/locked if not yet earned), badge name, its unlock description from <code>badges.ts</code>.</td></tr>
+        <tr><th>Actions</th><td>Single primary <strong>Close</strong> button.</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="gallery-section" id="disclaimer">
+    <h2>Disclaimer Dialog</h2>
+    <p class="desc"><code>features/goals/components/DisclaimerDialog.tsx</code> — <strong>not</strong> a true overlay: an inline gold-tinted box injected directly into the scroll flow beneath the goal list.</p>
+    <div class="screen-layout" style="grid-template-columns: 340px 1fr">
+      <div class="phone-frame" data-theme="light" style="max-width:320px">
+        <div class="phone-screen" style="height:220px;padding:20px">
+          <div style="background:var(--moon-glow-100);border-radius:var(--radius-md);padding:14px">
+            <p style="font:var(--text-body-sm);color:#7a5a13;margin:0 0 10px">Sleep experts generally recommend an earlier bedtime. Would you like to continue with this goal?</p>
+            <div class="m-row" style="justify-content:flex-end;gap:8px">
+              <button class="m-btn ghost" style="padding:8px 16px;font-size:13px">Change goal</button>
+              <button class="m-btn primary" style="padding:8px 16px;font-size:13px">Continue</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <table class="spec-table">
+        <tr><th>Trigger</th><td><a class="nav-link" href="screens/goal-picker.html">Goal Picker</a>, when a selected/added/edited goal label trips <code>looksLikeUnhealthyBedtime</code> — a named bedtime between 12:00am–4:59am.</td></tr>
+        <tr><th>Content</th><td>Non-blocking warning: "Sleep experts generally recommend an earlier bedtime. Would you like to continue with this goal?"</td></tr>
+        <tr><th>Actions</th><td><strong>Change goal</strong> (ghost) removes the flagged goal. <strong>Continue</strong> (primary) dismisses the disclaimer and keeps the goal — never blocks saving.</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="gallery-section" id="time-picker">
+    <h2>Time Picker panel</h2>
+    <p class="desc">An inline expanding panel appended below whichever time field triggered it, not a modal — used by Home's bedtime/wake fields, Check-In's report-times step, and Settings' reminder rows.</p>
+    <div class="screen-layout" style="grid-template-columns: 340px 1fr">
+      <div class="phone-frame" data-theme="light" style="max-width:320px">
+        <div class="phone-screen" style="height:260px;padding:20px">
+          <div class="m-card">
+            <div class="m-row" style="justify-content:center;gap:6px;font:700 22px var(--font-body)">
+              <span style="opacity:.4">10</span><span>11</span><span style="opacity:.4">12</span>
+              <span style="margin:0 8px">:</span>
+              <span style="opacity:.4">55</span><span>00</span><span style="opacity:.4">05</span>
+              <span style="margin-left:8px">PM</span>
+            </div>
+            <button class="m-btn primary block" style="margin-top:14px">Done</button>
+          </div>
+        </div>
+      </div>
+      <table class="spec-table">
+        <tr><th>Trigger</th><td>Tapping the clock icon on any TimeField — Home's bedtime/wake fields, Check-In's report-times step, Settings' reminder rows.</td></tr>
+        <tr><th>Content</th><td>Wraps <code>@react-native-community/datetimepicker</code>'s Android spinner.</td></tr>
+        <tr><th>Actions</th><td>Auto-closes on selection (Android's native picker behavior).</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="gallery-section" id="import-confirm">
+    <h2>Import confirmation (Alert)</h2>
+    <p class="desc"><code>features/backup/logic</code>, triggered from Settings' Backup &amp; Restore section — native <code>Alert.alert</code> on Android.</p>
+    <div class="screen-layout" style="grid-template-columns: 340px 1fr">
+      <div class="phone-frame" data-theme="dark" style="max-width:320px">
+        <div class="phone-screen" style="height:260px;display:flex;align-items:center;justify-content:center;background:rgba(33,28,62,0.5)">
+          <div class="m-card" style="width:78%;text-align:center">
+            <p class="m-title" style="font-size:16px;color:var(--text-primary)">Replace current data?</p>
+            <p class="m-body" style="margin:6px 0 var(--space-4);color:var(--text-primary)">Importing will replace all current goals, journey history, and settings.</p>
+            <div class="m-row" style="gap:8px">
+              <button class="m-btn ghost" style="flex:1;padding:11px">Cancel</button>
+              <button class="m-btn primary" style="flex:1;padding:11px">Import</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <table class="spec-table">
+        <tr><th>Trigger</th><td>Tapping <strong>Import</strong> after a valid backup <code>.json</code> file has been picked and its shape validated against the zod schema in <code>lib/schemas.ts</code>.</td></tr>
+        <tr><th>Content</th><td>Warning that import overwrites all current goals, history, and settings — a destructive-confirm gate, never applied partially on shape mismatch.</td></tr>
+        <tr><th>Actions</th><td><strong>Cancel</strong> / <strong>Import</strong> → proceeds with the restore.</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="gallery-section" id="toast">
+    <h2>Toast</h2>
+    <p class="desc"><code>features/achievements/components/Toast.tsx</code> — a context provider, not a per-screen component. Called from many screens for save confirmations, export/import results, and check-in feedback.</p>
+    <div class="screen-layout" style="grid-template-columns: 340px 1fr">
+      <div class="phone-frame" data-theme="dark" style="max-width:320px">
+        <div class="phone-screen" style="height:160px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:24px">
+          <div class="m-toast" style="color:var(--text-primary)">Backup restored</div>
+        </div>
+      </div>
+      <table class="spec-table">
+        <tr><th>Trigger</th><td>Save confirmations, export/import results, date-seeded check-in feedback tiered by full/partial/none completion — never phrased as failure.</td></tr>
+        <tr><th>Content</th><td>Bold single-line message on a pill-shaped surface. Animated fade + slide-up, bottom-center.</td></tr>
+        <tr><th>Actions</th><td>None — passive, auto-dismisses after a few seconds. Never blocks interaction.</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <footer class="catalog-footer">This is the app's complete set of popups/dialogs — no others exist in the current codebase.</footer>
+</main>
+</body>
+</html>

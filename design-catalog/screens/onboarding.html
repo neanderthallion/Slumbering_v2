@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Onboarding — Slumbering Design Catalog</title>
+<link rel="stylesheet" href="../assets/catalog.css">
+</head>
+<body>
+
+<nav class="sidebar">
+  <a class="sidebar-brand" href="../index.html">
+    <img src="../assets/illustrations/Slumbering_title.png" alt="Slumbering">
+  </a>
+  <div class="sidebar-group">
+    <h3>Overview</h3>
+    <ul><li><a href="../index.html">Catalog home</a></li></ul>
+  </div>
+  <div class="sidebar-group">
+    <h3>Screens</h3>
+    <ul>
+      <li><a href="onboarding.html" class="active">Onboarding</a></li>
+      <li><a href="home.html">Home</a></li>
+      <li><a href="goal-picker.html">Goal Picker</a></li>
+      <li><a href="tonight-confirmation.html">Tonight Confirmation</a></li>
+      <li><a href="check-in.html">Check-In</a></li>
+      <li><a href="journey.html">Journey</a></li>
+      <li><a href="add-past-record.html">Add Past Record (modal)</a></li>
+      <li><a href="bedtime.html">Bedtime</a></li>
+      <li><a href="settings.html">Settings</a></li>
+      <li><a href="sleep-science.html">Sleep Science</a></li>
+    </ul>
+  </div>
+  <div class="sidebar-group">
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="../popups.html">Popups &amp; dialogs</a></li>
+      <li><a href="../components.html">Components</a></li>
+      <li><a href="../tokens.html">Design tokens</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main class="main">
+  <div class="page-header">
+    <p class="eyebrow">Screen</p>
+    <h1 class="page-title">Onboarding</h1>
+    <p class="page-lede"><code>src/screens/Onboarding/OnboardingScreen.tsx</code></p>
+    <div class="chip-row">
+      <span class="chip chip-gate"><strong>Not a stack route</strong> — pre-navigator gate</span>
+      <span class="chip">Shown when <strong>settings.hasOnboarded === false</strong></span>
+      <span class="chip">No back navigation</span>
+    </div>
+  </div>
+
+  <div class="screen-layout">
+    <div class="mockup-col">
+      <div class="mockup-label">
+        <span>Preview</span>
+        <button class="theme-toggle" onclick="toggleMockupTheme(this)">Preview: dark</button>
+      </div>
+      <div class="phone-frame" data-theme="light">
+        <div class="phone-screen">
+          <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+          <div class="screen-pad">
+            <div class="m-row" style="justify-content:center;margin:28px 0 var(--space-5)">
+              <img src="../assets/illustrations/luna-moon-mascot.svg" alt="Luna the moon mascot" style="width:64px">
+            </div>
+            <h2 style="font:var(--text-display-sm);font-family:var(--font-display);margin:0 0 var(--space-5);text-align:center">Let's set up Slumbering</h2>
+
+            <div class="m-card organic">
+              <p class="m-eyebrow">What should we call you?</p>
+              <div style="background:var(--surface-sunken);border-radius:var(--radius-pill);padding:14px 18px;color:var(--text-tertiary);font:var(--text-body)">Your name</div>
+              <p style="font:var(--text-caption);color:var(--text-tertiary);margin:10px 0 0">Used to personalize your greetings, optional. You can add or change this later in Settings.</p>
+            </div>
+
+            <div class="m-card">
+              <p class="m-eyebrow">Theme</p>
+              <div class="m-tabs split">
+                <button class="m-tab active">Light</button>
+                <button class="m-tab">Dark</button>
+              </div>
+            </div>
+
+            <button class="m-btn primary block" style="margin-top:var(--space-2)">Get started</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notes-col">
+      <div class="notes-section">
+        <h2>Purpose</h2>
+        <p>First-run setup. Rendered directly by <code>AppShell</code> in <code>App.tsx</code> whenever <code>settings.hasOnboarded</code> is false — it sits <em>outside</em> the navigator entirely, so there is no header, back button, or route to it from anywhere else in the app.</p>
+      </div>
+
+      <div class="notes-section">
+        <h2>Data &amp; state</h2>
+        <ul>
+          <li>Name — local <code>useState</code>, optional free text.</li>
+          <li>Theme — reads/writes live via <code>ThemeContext.setMode</code>, so the whole screen (and app) previews the chosen theme immediately, before onboarding is even complete.</li>
+        </ul>
+      </div>
+
+      <div class="notes-section">
+        <h2>Conditional states</h2>
+        <p>None — a single static form. No loading/error/empty variants.</p>
+      </div>
+
+      <div class="notes-section">
+        <h2>User actions &amp; navigation</h2>
+        <ul>
+          <li><strong>Get started</strong> — commits the trimmed name and sets <code>hasOnboarded: true</code>, which flips <code>AppShell</code> into <code>NavigationContainer</code> → <a class="nav-link" href="home.html">Home</a> (the navigator's <code>initialRouteName</code>). This is the only way to leave this screen.</li>
+        </ul>
+      </div>
+
+      <div class="notes-section">
+        <h2>Components used</h2>
+        <p><a class="nav-link" href="../components.html#button">Button</a> (primary), <a class="nav-link" href="../components.html#card">Card</a>, <a class="nav-link" href="../components.html#segmented-tabs">SegmentedTabs</a>-style theme picker, Luna <a class="nav-link" href="../components.html#illustrations">moon mascot</a> illustration.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="../assets/catalog.js"></script>
+</body>
+</html>

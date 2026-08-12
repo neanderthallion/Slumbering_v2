@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slumbering — Design Catalog</title>
+<link rel="stylesheet" href="assets/catalog.css">
+</head>
+<body>
+
+<nav class="sidebar">
+  <a class="sidebar-brand" href="index.html">
+    <img src="assets/illustrations/Slumbering_title.png" alt="Slumbering">
+  </a>
+  <div class="sidebar-group">
+    <h3>Overview</h3>
+    <ul><li><a href="index.html" class="active">Catalog home</a></li></ul>
+  </div>
+  <div class="sidebar-group">
+    <h3>Screens</h3>
+    <ul>
+      <li><a href="screens/onboarding.html">Onboarding</a></li>
+      <li><a href="screens/home.html">Home</a></li>
+      <li><a href="screens/goal-picker.html">Goal Picker</a></li>
+      <li><a href="screens/tonight-confirmation.html">Tonight Confirmation</a></li>
+      <li><a href="screens/check-in.html">Check-In</a></li>
+      <li><a href="screens/journey.html">Journey</a></li>
+      <li><a href="screens/add-past-record.html">Add Past Record (modal)</a></li>
+      <li><a href="screens/bedtime.html">Bedtime</a></li>
+      <li><a href="screens/settings.html">Settings</a></li>
+      <li><a href="screens/sleep-science.html">Sleep Science</a></li>
+    </ul>
+  </div>
+  <div class="sidebar-group">
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="popups.html">Popups &amp; dialogs</a></li>
+      <li><a href="components.html">Components</a></li>
+      <li><a href="tokens.html">Design tokens</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main class="main">
+  <div class="page-header">
+    <p class="eyebrow">Design catalog</p>
+    <h1 class="page-title">Every screen, popup, and component in Slumbering</h1>
+    <p class="page-lede">
+      A browsable reference matching the deployed app — built from the app's target
+      architecture (<code>CLAUDE.md</code>) and the actual on-device screenshots in
+      <code>design-catalog/AppScreen/</code>. Each screen page is a structural HTML/CSS
+      recreation — faithful to real layout, copy, and states — with a light/dark preview
+      toggle and an annotated notes panel, not a pixel-exact export or a live screenshot.
+    </p>
+    <p class="page-lede">
+      One dusk-purple + gold/blush/sage palette, Quicksand type, soft 16–40px card radii,
+      full-pill buttons/badges, and a fixed pink→gold CTA gradient that never changes with
+      theme. See <a class="nav-link" href="tokens.html">Design tokens</a> for the full system.
+    </p>
+    <div class="chip-row">
+      <span class="chip">10 screens</span>
+      <span class="chip">6 popups / dialogs</span>
+      <span class="chip">14 reusable components</span>
+      <span class="chip">1 token system, light + dark</span>
+    </div>
+  </div>
+
+  <div class="gallery-section">
+    <h2>Golden path</h2>
+    <p class="desc">The app's core daily loop, in the order a user experiences it.</p>
+    <table class="spec-table">
+      <tr><th>Step</th><th>Screen</th><th>What happens</th></tr>
+      <tr><td>1</td><td><a class="nav-link" href="screens/onboarding.html">Onboarding</a></td><td>First run only — name + light/dark theme choice, not part of the navigator.</td></tr>
+      <tr><td>2</td><td><a class="nav-link" href="screens/home.html">Home</a></td><td>Landing dashboard — greeting, companion message, bedtime schedule, and the day's primary CTA.</td></tr>
+      <tr><td>3</td><td><a class="nav-link" href="screens/goal-picker.html">Goal Picker</a></td><td>Pick 1–2 sleep goals for tonight (or edit today's).</td></tr>
+      <tr><td>4</td><td><a class="nav-link" href="screens/tonight-confirmation.html">Tonight Confirmation</a></td><td>Read-only recap → confirm creates tonight's record.</td></tr>
+      <tr><td>5</td><td><a class="nav-link" href="screens/check-in.html">Check-In</a></td><td>Next morning — a yes/no gate on sleep timing, then mark each goal achieved.</td></tr>
+      <tr><td>6</td><td><a class="nav-link" href="screens/journey.html">Journey</a></td><td>All-time stats, the 7 fixed badges, and the full history timeline.</td></tr>
+    </table>
+  </div>
+
+  <div class="gallery-section">
+    <h2>All screens</h2>
+    <div class="swatch-grid">
+      <a class="demo-box" href="screens/onboarding.html"><span class="demo-label">First run</span><strong>Onboarding</strong></a>
+      <a class="demo-box" href="screens/home.html"><span class="demo-label">Landing</span><strong>Home</strong></a>
+      <a class="demo-box" href="screens/goal-picker.html"><span class="demo-label">Create / edit</span><strong>Goal Picker</strong></a>
+      <a class="demo-box" href="screens/tonight-confirmation.html"><span class="demo-label">Confirm</span><strong>Tonight Confirmation</strong></a>
+      <a class="demo-box" href="screens/check-in.html"><span class="demo-label">Wizard</span><strong>Check-In</strong></a>
+      <a class="demo-box" href="screens/journey.html"><span class="demo-label">History</span><strong>Journey</strong></a>
+      <a class="demo-box" href="screens/add-past-record.html"><span class="demo-label">Native modal</span><strong>Add Past Record</strong></a>
+      <a class="demo-box" href="screens/bedtime.html"><span class="demo-label">Analytics</span><strong>Bedtime</strong></a>
+      <a class="demo-box" href="screens/settings.html"><span class="demo-label">5 sub-sections</span><strong>Settings</strong></a>
+      <a class="demo-box" href="screens/sleep-science.html"><span class="demo-label">Static article</span><strong>Sleep Science</strong></a>
+    </div>
+  </div>
+
+  <div class="gallery-section">
+    <h2>Popups &amp; reference</h2>
+    <div class="swatch-grid">
+      <a class="demo-box" href="popups.html"><span class="demo-label">6 popups</span><strong>Popups &amp; dialogs</strong></a>
+      <a class="demo-box" href="components.html"><span class="demo-label">9 primitives</span><strong>Components</strong></a>
+      <a class="demo-box" href="tokens.html"><span class="demo-label">Color · type · space</span><strong>Design tokens</strong></a>
+    </div>
+  </div>
+
+  <div class="gallery-section">
+    <h2>How to read a screen page</h2>
+    <p class="desc">Every screen page in this catalog follows the same layout:</p>
+    <ul>
+      <li><strong>Header chips</strong> — the route name, how it's presented (pushed screen vs. the one native modal), and where its back-navigation goes.</li>
+      <li><strong>Phone-frame mockup</strong> — a structural recreation at native app scale, with a "Preview: dark" button to flip that mockup's theme.</li>
+      <li><strong>State tabs</strong> — screens with more than one meaningful state (e.g. Check-In's wizard steps, Home's 4 goals-status states, Bedtime's Week/Month) show each as a switchable variant.</li>
+      <li><strong>Notes panel</strong> — Purpose, Data &amp; state, Conditional states, User actions &amp; navigation (linked), and Components used (linked to the component reference).</li>
+    </ul>
+  </div>
+
+  <footer class="catalog-footer">
+    Source: <code>CLAUDE.md</code> (target architecture) and the on-device screenshots in
+    <code>design-catalog/AppScreen/</code>. Not a build artifact — safe to delete or regenerate.
+  </footer>
+</main>
+
+</body>
+</html>

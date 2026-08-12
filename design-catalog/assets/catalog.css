@@ -1,0 +1,474 @@
+/* Slumbering design catalog — shared shell, mockup, and annotation styles.
+   Design tokens (color/typography/spacing/radius/shadow) are imported from
+   ./tokens/*.css, matching src/theme/tokens.ts. The catalog UI itself
+   (sidebar, nav, notes) always renders in the light palette for
+   readability; only the .phone-frame mockups switch theme via the
+   per-mockup light/dark toggle (data-theme attribute). */
+
+@import url("tokens/colors.css");
+@import url("tokens/typography.css");
+@import url("tokens/spacing.css");
+@import url("tokens/radius.css");
+@import url("tokens/shadow.css");
+
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  padding: 0;
+  font: var(--text-body);
+  color: var(--text-primary);
+  background: var(--surface-page);
+}
+body { display: flex; min-height: 100vh; }
+a { color: inherit; }
+img { max-width: 100%; display: block; }
+
+/* ---------- page shell: sidebar + main ---------- */
+
+.sidebar {
+  width: 240px;
+  flex: none;
+  background: var(--surface-card);
+  border-right: 1px solid var(--border-hairline);
+  padding: var(--space-6) var(--space-5);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+  text-decoration: none;
+}
+/* Slumbering_title.png ships as a 500×500 square canvas with the script
+   wordmark centered in a narrow horizontal band — crop to just that band
+   via object-fit:cover on a wide/short box instead of showing the square
+   with lots of empty padding above/below. The glyph itself is pale cream
+   (made for a dark surface); the catalog chrome always renders light, so
+   silhouette it dark here with a filter rather than leaving it invisible. */
+.sidebar-brand img {
+  width: 170px;
+  aspect-ratio: 370 / 95;
+  object-fit: cover;
+  object-position: center;
+  filter: brightness(0);
+  opacity: .85;
+}
+/* Same wordmark used inside a phone-frame mockup (Home's greeting header):
+   keep it pale cream on the dark-theme preview, silhouette dark on light. */
+.phone-frame:not([data-theme="dark"]) .m-wordmark { filter: brightness(0); opacity: .85; }
+.sidebar-group { margin-bottom: var(--space-6); }
+.sidebar-group h3 {
+  font: var(--text-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin: 0 0 var(--space-2);
+}
+.sidebar-group ul { list-style: none; margin: 0; padding: 0; }
+.sidebar-group li { margin-bottom: 2px; }
+.sidebar-group a {
+  display: block;
+  padding: 7px var(--space-3);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  font: var(--text-body-sm);
+  color: var(--text-secondary);
+}
+.sidebar-group a:hover { background: var(--surface-sunken); color: var(--text-primary); }
+.sidebar-group a.active { background: var(--blush-100); color: var(--dusk-900); font-weight: 700; }
+
+.main {
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-9) var(--space-8) var(--space-11) var(--space-10);
+  max-width: 1180px;
+}
+
+/* ---------- page header ---------- */
+
+.page-header {
+  margin-bottom: var(--space-8);
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--border-hairline);
+}
+.eyebrow {
+  font: var(--text-label);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--accent-primary);
+  margin: 0 0 var(--space-2);
+}
+h1.page-title {
+  font: var(--text-display-md);
+  font-family: var(--font-display);
+  margin: 0 0 var(--space-3);
+  color: var(--text-primary);
+}
+.page-lede { font: var(--text-body-lg); color: var(--text-secondary); max-width: 62ch; margin: 0 0 var(--space-4); }
+
+.chip-row { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-hairline);
+  font: var(--text-caption);
+  color: var(--text-secondary);
+}
+.chip strong { color: var(--text-primary); }
+.chip.chip-modal { background: var(--blush-100); border-color: var(--blush-200); color: #7a3f52; }
+.chip.chip-gate { background: var(--moon-glow-100); border-color: var(--moon-glow-300); color: #7a5a13; }
+
+/* ---------- layout: mockup + notes side by side ---------- */
+
+.screen-layout {
+  display: grid;
+  grid-template-columns: minmax(320px, 400px) 1fr;
+  gap: var(--space-9);
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .screen-layout { grid-template-columns: 1fr; }
+}
+
+.mockup-col { position: sticky; top: var(--space-6); }
+.mockup-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+.mockup-label span { font: var(--text-label); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--text-tertiary); }
+
+.theme-toggle {
+  font: var(--text-caption);
+  border: 1.5px solid var(--border-subtle);
+  background: var(--surface-card);
+  color: var(--text-primary);
+  border-radius: var(--radius-pill);
+  padding: 5px 14px;
+  cursor: pointer;
+}
+.theme-toggle:hover { border-color: var(--accent-primary); }
+
+/* ---------- phone-frame mockup ---------- */
+
+.phone-frame {
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+  border-radius: 44px;
+  padding: 10px;
+  background: #1c1836;
+  box-shadow: var(--shadow-panel);
+}
+.phone-screen {
+  border-radius: 36px;
+  overflow: hidden;
+  height: 720px;
+  overflow-y: auto;
+  background: var(--surface-page);
+  color: var(--text-primary);
+  position: relative;
+  scrollbar-width: thin;
+}
+.phone-frame[data-theme="dark"] .phone-screen {
+  --surface-page: var(--dusk-900);
+  --surface-card: var(--dusk-800);
+  --surface-card-alt: var(--dusk-800);
+  --surface-sunken: var(--dusk-950);
+  --border-subtle: rgba(252,226,166,0.18);
+  --border-hairline: rgba(252,226,166,0.12);
+  --text-primary: var(--cream-200);
+  --text-secondary: var(--dusk-300);
+  --text-tertiary: var(--dusk-400);
+  --text-on-accent: var(--dusk-900);
+  --accent-gold: var(--moon-glow-200);
+  --accent-blush: var(--blush-300);
+  --accent-sage: var(--sage-300);
+  --accent-primary: var(--moon-glow-200);
+  --shadow-tint: 0,0,0;
+}
+.status-bar {
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 22px;
+  font: 700 12px var(--font-body);
+  color: var(--text-primary);
+}
+.screen-pad { padding: 4px var(--space-5) var(--space-9); }
+
+/* small state-switcher tabs used on multi-state screen pages (Check-in, Home CTA states, Settings sub-sections) */
+.state-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: var(--space-4); padding: 0 var(--space-5); }
+.state-tab {
+  font: var(--text-caption);
+  padding: 5px 11px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-hairline);
+  background: var(--surface-card);
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+.state-tab.active { background: var(--cta-gradient); color: var(--text-on-accent); border-color: transparent; font-weight: 700; }
+.state-pane { display: none; }
+.state-pane.active { display: block; }
+
+/* ---------- reusable mock UI atoms (mirror src/components/*) ---------- */
+
+.m-card {
+  background: var(--surface-card-alt);
+  box-shadow: var(--shadow-plaque);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  margin-bottom: var(--space-4);
+  color: var(--text-primary);
+}
+/* the one hero/quote element per screen: same card, but the single
+   asymmetric "organic" radius reserved for exactly one element per screen
+   (CLAUDE.md §7) — never reused elsewhere on the same screen. */
+.m-card.organic { border-radius: var(--radius-organic); }
+/* the fixed dusk "night" surface — Bedtime Schedule panel and any other
+   sleep-time content. Always this color regardless of the app's theme. */
+.m-card.night {
+  background: var(--night-surface);
+  box-shadow: var(--shadow-panel);
+  border-radius: var(--radius-xl);
+  color: var(--night-text);
+}
+.m-eyebrow { font: var(--text-label); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--text-tertiary); margin: 0 0 6px; }
+.m-title { font: var(--text-title); margin: 0 0 4px; }
+.m-body { font: var(--text-body); color: var(--text-secondary); margin: 0; }
+
+.m-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: var(--radius-pill);
+  padding: 15px 26px;
+  font: var(--text-body-lg);
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+}
+.m-btn.primary { background: var(--cta-gradient); color: var(--text-on-accent); box-shadow: var(--shadow-cta); }
+.m-btn.ghost { background: transparent; color: var(--text-primary); border: 1.5px solid var(--border-subtle); }
+.m-btn.block { display: flex; width: 100%; }
+
+.m-row { display: flex; align-items: center; gap: var(--space-3); }
+.m-between { display: flex; align-items: center; justify-content: space-between; }
+
+.m-toggle {
+  width: 44px; height: 26px; border-radius: 999px; background: var(--border-subtle);
+  position: relative; flex: none;
+}
+.m-toggle.on { background: var(--cta-gradient); }
+.m-toggle::after {
+  content: ""; position: absolute; top: 2.5px; left: 3px; width: 21px; height: 21px;
+  border-radius: 50%; background: #fff; box-shadow: var(--shadow-pop);
+  transition: transform .18s ease;
+}
+.m-toggle.on::after { transform: translateX(18px); }
+
+.m-checkbox {
+  width: 22px; height: 22px; border-radius: 7px; border: 1.5px solid var(--border-subtle);
+  flex: none; display: flex; align-items: center; justify-content: center; font-size: 13px; color: var(--text-on-accent);
+}
+.m-checkbox.checked { background: var(--accent-gold); border-color: var(--accent-gold); }
+
+/* tabs — independent pill buttons, gap between them (not a merged
+   segmented track): Week/Month toggle, goal-category tabs. */
+.m-tabs { display: flex; gap: 10px; flex-wrap: wrap; }
+.m-tabs.split .m-tab { flex: 1; }
+.m-tab {
+  padding: 13px 20px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--border-subtle);
+  background: transparent;
+  color: var(--text-secondary);
+  font: var(--text-body-lg);
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.m-tab.active { background: var(--cta-gradient); color: var(--text-on-accent); border-color: transparent; box-shadow: var(--shadow-cta); }
+/* solid-ink active state (not the gradient) — used only by the Text Size
+   control in Settings, where the selected pill is a flat accent-primary
+   fill rather than the pink/gold gradient */
+.m-tab.active-solid { background: var(--accent-primary); color: var(--text-on-primary-solid); border-color: transparent; }
+
+/* yes/no pill pair — check-in gate, achieved-goal rows */
+.m-yesno { display: flex; gap: 8px; flex: none; }
+.m-yesno button {
+  padding: 8px 20px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--border-subtle);
+  background: transparent;
+  color: var(--text-secondary);
+  font: var(--text-body-sm);
+  font-weight: 700;
+  cursor: pointer;
+}
+.m-yesno button.selected { background: var(--cta-gradient); color: var(--text-on-accent); border-color: transparent; }
+
+.m-goal-row { display: flex; align-items: center; gap: var(--space-3); padding: 12px 0; border-bottom: 1px solid var(--border-hairline); }
+.m-goal-row:last-child { border-bottom: none; }
+
+.m-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.m-dot.filled-gold { background: var(--moon-glow-300); }
+.m-dot.filled-blush { background: var(--blush-300); }
+.m-dot.outline { border: 1.5px solid var(--border-subtle); }
+
+.m-toast {
+  display: inline-flex; align-items: center; gap: 8px; background: var(--surface-card-alt);
+  box-shadow: var(--shadow-card);
+  padding: 10px 18px; border-radius: var(--radius-pill); font: var(--text-body-sm); font-weight: 700;
+}
+
+/* ---------- Slumbering signature devices (as actually shipped) ---------- */
+
+/* dot-journey graph — a week of nights as dots at varying heights along a
+   dotted rail, gold = fully achieved, blush = partially achieved, outline
+   = no record. Used on Home's Journey preview and the top of Journey. */
+.m-journey-wave { position: relative; height: 64px; margin: var(--space-2) 0; }
+.m-journey-wave svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.m-journey-wave .rail { fill: none; stroke: var(--border-subtle); stroke-width: 1.5; stroke-dasharray: 1 6; stroke-linecap: round; }
+.m-journey-wave .node { stroke: none; }
+.m-journey-wave .node.gold { fill: var(--moon-glow-300); }
+.m-journey-wave .node.gold-ring { fill: var(--moon-glow-100); stroke: var(--moon-glow-300); stroke-width: 6; }
+.m-journey-wave .node.blush { fill: var(--blush-300); }
+.m-journey-wave .node.blush-ring { fill: var(--blush-100); stroke: var(--blush-300); stroke-width: 5; }
+.m-journey-wave .node.outline { fill: var(--surface-page); stroke: var(--border-subtle); stroke-width: 2; }
+
+/* progress ring — conic-gradient donut used for the Journey all-time % */
+.m-ring-wrap { position: relative; width: 108px; height: 108px; flex: none; }
+.m-ring {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: conic-gradient(var(--moon-glow-300) calc(var(--pct, 50) * 3.6deg), var(--surface-sunken) 0deg);
+}
+.m-ring-inner {
+  position: absolute; inset: 11px; border-radius: 50%;
+  background: var(--surface-card-alt);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+
+/* line chart — bedtime/wakeup regularity graphs on the Bedtime screen */
+.m-linechart { position: relative; height: 140px; margin: var(--space-3) 0; }
+.m-linechart svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.m-linechart .target { stroke: var(--border-subtle); stroke-width: 1.5; stroke-dasharray: 3 5; }
+.m-linechart .series { fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.m-linechart .series.bedtime { stroke: var(--accent-blush); }
+.m-linechart .series.wakeup { stroke: var(--accent-gold); }
+.m-linechart .node { stroke: none; }
+.m-linechart .node.bedtime { fill: var(--accent-blush); }
+.m-linechart .node.wakeup { fill: var(--accent-gold); }
+
+/* bar chart — sleep duration on the Bedtime screen */
+.m-barchart { display: flex; align-items: flex-end; gap: 10px; height: 140px; padding-top: 8px; border-top: 1.5px dashed var(--border-subtle); }
+.m-barchart .bar { flex: 1; max-width: 34px; background: var(--accent-sage); border-radius: 6px 6px 2px 2px; }
+
+/* weight-contrast numerals for stat/duration/streak/percentage figures */
+.m-numeral { font: var(--text-numeral-hero); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; color: var(--text-primary); }
+.m-numeral-sm { font: var(--text-numeral-sm); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; color: var(--text-primary); }
+
+/* achievement badge medallion — circular, gold on dusk, ribbon label
+   underneath; locked badges render as a dim silhouette */
+.m-badge { width: 78px; text-align: center; flex: none; }
+.m-badge-icon {
+  width: 78px; height: 78px; border-radius: 50%;
+  background: radial-gradient(circle at 32% 26%, var(--dusk-600), var(--dusk-900) 72%);
+  border: 2px solid var(--moon-glow-300);
+  outline: 2px dashed rgba(252,226,166,0.45);
+  outline-offset: 3px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  box-shadow: var(--shadow-pop);
+}
+.m-badge-icon .star { color: var(--moon-glow-200); font-size: 24px; line-height: 1; }
+.m-badge-ribbon {
+  margin: -12px auto 0; width: 74%;
+  background: var(--moon-glow-300); color: var(--dusk-900);
+  font: 700 7.5px/1.3 var(--font-body); letter-spacing: 0.6px; text-transform: uppercase;
+  padding: 3px 4px; border-radius: 3px; position: relative; z-index: 1;
+}
+.m-badge-label { margin-top: 8px; font: var(--text-caption); font-weight: 700; color: var(--text-primary); }
+.m-badge.locked .m-badge-icon { background: var(--surface-sunken); border-color: var(--border-subtle); outline-color: var(--border-hairline); box-shadow: none; }
+.m-badge.locked .star { color: var(--text-tertiary); opacity: .6; }
+.m-badge.locked .m-badge-ribbon { background: var(--surface-sunken); color: var(--text-tertiary); }
+.m-badge.locked .m-badge-label { color: var(--text-tertiary); }
+
+/* ---------- notes / annotation panel ---------- */
+
+.notes-col { min-width: 0; }
+.notes-section { margin-bottom: var(--space-6); }
+.notes-section h2 {
+  font: var(--text-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--accent-primary);
+  margin: 0 0 var(--space-3);
+}
+.notes-section p { margin: 0 0 var(--space-2); color: var(--text-primary); }
+.notes-section ul { margin: 0; padding-left: 1.1em; }
+.notes-section li { margin-bottom: 6px; }
+.notes-section li:last-child { margin-bottom: 0; }
+
+.state-card {
+  background: var(--surface-card);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-5);
+  margin-bottom: var(--space-3);
+}
+.state-card h3 { font: var(--text-body-lg); margin: 0 0 6px; }
+.state-card p { margin: 0; color: var(--text-secondary); font: var(--text-body-sm); }
+
+a.nav-link {
+  color: var(--accent-blush);
+  text-decoration: none;
+  font-weight: 700;
+  border-bottom: 1.5px dashed currentColor;
+}
+a.nav-link:hover { opacity: .75; }
+
+table.spec-table { width: 100%; border-collapse: collapse; font: var(--text-body-sm); }
+table.spec-table th, table.spec-table td {
+  text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border-hairline); vertical-align: top;
+}
+table.spec-table th { color: var(--text-tertiary); font-weight: 700; }
+
+/* ---------- components / tokens gallery pages ---------- */
+
+.gallery-section { margin-bottom: var(--space-9); }
+.gallery-section h2 { font: var(--text-display-sm); font-family: var(--font-display); margin: 0 0 4px; }
+.gallery-section .desc { color: var(--text-secondary); margin: 0 0 var(--space-5); max-width: 70ch; }
+.swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--space-4); }
+.demo-box {
+  background: var(--surface-card);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-3);
+}
+.demo-box .demo-label { font: var(--text-caption); color: var(--text-tertiary); text-transform: uppercase; letter-spacing: var(--tracking-label); }
+
+.color-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: var(--space-3); }
+.color-tile { border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-plaque); }
+.color-tile .swatch { height: 64px; }
+.color-tile .label { padding: var(--space-3); font: var(--text-body-sm); background: var(--surface-card); }
+.color-tile .label code { display: block; color: var(--text-tertiary); font-size: 11px; margin-top: 2px; }
+
+.type-row { padding: var(--space-4) 0; border-bottom: 1px solid var(--border-hairline); }
+.type-row:last-child { border-bottom: none; }
+.type-row .meta { font: var(--text-caption); color: var(--text-tertiary); margin-bottom: 6px; }
+
+footer.catalog-footer { margin-top: var(--space-11); padding-top: var(--space-5); border-top: 1px solid var(--border-hairline); color: var(--text-tertiary); font: var(--text-caption); }

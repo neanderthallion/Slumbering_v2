@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Check-In — Slumbering Design Catalog</title>
+<link rel="stylesheet" href="../assets/catalog.css">
+</head>
+<body>
+
+<nav class="sidebar">
+  <a class="sidebar-brand" href="../index.html"><img src="../assets/illustrations/Slumbering_title.png" alt="Slumbering"></a>
+  <div class="sidebar-group"><h3>Overview</h3><ul><li><a href="../index.html">Catalog home</a></li></ul></div>
+  <div class="sidebar-group">
+    <h3>Screens</h3>
+    <ul>
+      <li><a href="onboarding.html">Onboarding</a></li>
+      <li><a href="home.html">Home</a></li>
+      <li><a href="goal-picker.html">Goal Picker</a></li>
+      <li><a href="tonight-confirmation.html">Tonight Confirmation</a></li>
+      <li><a href="check-in.html" class="active">Check-In</a></li>
+      <li><a href="journey.html">Journey</a></li>
+      <li><a href="add-past-record.html">Add Past Record (modal)</a></li>
+      <li><a href="bedtime.html">Bedtime</a></li>
+      <li><a href="settings.html">Settings</a></li>
+      <li><a href="sleep-science.html">Sleep Science</a></li>
+    </ul>
+  </div>
+  <div class="sidebar-group"><h3>Reference</h3><ul><li><a href="../popups.html">Popups &amp; dialogs</a></li><li><a href="../components.html">Components</a></li><li><a href="../tokens.html">Design tokens</a></li></ul></div>
+</nav>
+
+<main class="main">
+  <div class="page-header">
+    <p class="eyebrow">Screen · Route "CheckIn"</p>
+    <h1 class="page-title">Check-In</h1>
+    <p class="page-lede"><code>src/screens/CheckIn/CheckInScreen.tsx</code> — the "morning after" flow. An internal wizard (<code>sleepStep</code>: <code>ask → reportTimes → done</code>), the most stateful screen in the app.</p>
+    <div class="chip-row">
+      <span class="chip">Pushed screen</span>
+      <span class="chip">Back row → <strong>Home</strong></span>
+      <span class="chip chip-gate">No today record → redirects straight to Home, renders null</span>
+    </div>
+  </div>
+
+  <div class="screen-layout">
+    <div class="mockup-col">
+      <div class="mockup-label"><span>Preview — wizard step</span><button class="theme-toggle" onclick="toggleMockupTheme(this)">Preview: dark</button></div>
+
+      <div class="state-tabs" id="ci-tabs">
+        <button class="state-tab active" onclick="showState('ci-group','ci-ask',this)">1 · Ask</button>
+        <button class="state-tab" onclick="showState('ci-group','ci-report',this)">2 · Report times</button>
+        <button class="state-tab" onclick="showState('ci-group','ci-done',this)">3 · Done</button>
+      </div>
+
+      <div class="phone-frame" data-theme="dark">
+        <div class="phone-screen">
+          <div class="status-bar"><span>8:04</span><span>●●●</span></div>
+          <div class="screen-pad" id="ci-group">
+            <p style="font:var(--text-body-lg);font-weight:700;color:var(--text-secondary);margin:10px 0 22px">&lsaquo; Home</p>
+
+            <div class="state-pane active" id="ci-ask">
+              <div class="m-card organic">
+                <p class="m-title">Did you keep to your planned bedtime and wake time?</p>
+                <p class="m-body" style="margin-top:4px">11:00 PM – 5:30 AM</p>
+                <div class="m-row" style="margin-top:var(--space-4)">
+                  <button class="m-btn ghost" style="flex:1">No</button>
+                  <button class="m-btn primary" style="flex:1">Yes</button>
+                </div>
+              </div>
+              <p style="font:var(--text-caption);color:var(--text-tertiary);text-align:center;margin-top:10px">Only shown when a planned bedtime/wake exist and it hasn't been answered yet today. "Yes" skips straight to step 3 — no detailed time entry for the common case.</p>
+            </div>
+
+            <div class="state-pane" id="ci-report">
+              <div class="m-card">
+                <p class="m-eyebrow">Actual bedtime</p>
+                <div style="background:var(--surface-sunken);border-radius:var(--radius-pill);padding:14px 18px;font-weight:700;margin-bottom:var(--space-4)">11:35 PM</div>
+                <p class="m-eyebrow">Actual wake-up</p>
+                <div style="background:var(--surface-sunken);border-radius:var(--radius-pill);padding:14px 18px;font-weight:700">6:50 AM</div>
+              </div>
+              <div class="m-row">
+                <button class="m-btn ghost" style="flex:1">Back</button>
+                <button class="m-btn primary" style="flex:1">Continue</button>
+              </div>
+            </div>
+
+            <div class="state-pane" id="ci-done">
+              <p style="font-style:italic;font:var(--text-body-sm);color:var(--text-secondary);margin:0 0 var(--space-4)">You slept a little less than planned — tomorrow's a fresh chance.</p>
+              <div class="m-card">
+                <div class="m-goal-row"><span class="m-body" style="flex:1;color:var(--text-primary)">Sleep before 11:00 PM</span>
+                  <div class="m-yesno"><button>No</button><button class="selected">Yes</button></div>
+                </div>
+                <div class="m-goal-row"><span class="m-body" style="flex:1;color:var(--text-primary)">Stretching for 10 minutes before bed</span>
+                  <div class="m-yesno"><button class="selected">No</button><button>Yes</button></div>
+                </div>
+              </div>
+              <div class="m-row" style="margin-top:var(--space-4)">
+                <button class="m-btn ghost" style="flex:1">Cancel</button>
+                <button class="m-btn primary" style="flex:1">Confirm</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notes-col">
+      <div class="notes-section">
+        <h2>Purpose</h2>
+        <p>Reviews the previous night: a frictionless yes/no gate on whether sleep went as planned, then marks each of that night's goals achieved or not.</p>
+      </div>
+
+      <div class="notes-section">
+        <h2>Wizard steps</h2>
+        <div class="state-card"><h3>1 · Ask</h3><p>Only shown if a planned bedtime/wake exist and <code>sleepConfirmation</code> is unset. <strong>Yes</strong> sets <code>asPlanned</code> and skips straight to Done — no time entry for the common case. <strong>No</strong> reveals actual bedtime/wake time pickers.</p></div>
+        <div class="state-card"><h3>2 · Report times</h3><p>Only reached on "No." Actual bedtime/wake via two TimeFields. Continue compares actual vs. planned with a ±15 min tolerance band → on-time / shorter / longer, feeding date-seeded feedback text.</p></div>
+        <div class="state-card"><h3>3 · Done</h3><p>Optional feedback line, then a Yes/No pill per goal. Confirm stays disabled until every goal is answered.</p></div>
+      </div>
+
+      <div class="notes-section">
+        <h2>On Confirm</h2>
+        <ul>
+          <li>Updates the night record with each goal's <code>achieved</code> value and <code>sleepConfirmation</code>/actual times.</li>
+          <li>Evaluates all 7 badges; only ones unlocked <em>today</em> (not already in <code>settings.celebratedAchievementIds</code>) trigger a celebration.</li>
+          <li>Picks a date-seeded check-in toast tiered by full/partial/none completion — never phrased as failure.</li>
+          <li><strong>If new achievements unlocked</strong> → shows <a class="nav-link" href="../popups.html#celebration">Achievement Celebration modal</a> first (holds navigation/toast until closed).</li>
+          <li><strong>Otherwise</strong> → navigates straight to <a class="nav-link" href="home.html">Home</a> with the toast.</li>
+        </ul>
+      </div>
+
+      <div class="notes-section">
+        <h2>Components used</h2>
+        <p><a class="nav-link" href="../components.html#card">Card</a> (plain / organic), <a class="nav-link" href="../components.html#button">Button</a>, TimeField, <a class="nav-link" href="../components.html#yesno">Yes/No pill</a>, <a class="nav-link" href="../popups.html#celebration">AchievementCelebrationModal</a>.</p>
+      </div>
+    </div>
+  </div>
+</main>
+<script src="../assets/catalog.js"></script>
+</body>
+</html>

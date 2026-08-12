@@ -1,49 +1,54 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { useTheme } from '../../theme/ThemeContext';
+import { useTheme } from '../../theme/ThemeProvider';
+import { MoonMascot } from '../../components/MoonMascot';
+import { SlumberingWordmark } from '../../components/SlumberingWordmark';
 
 interface Props {
-  greeting: string; // one of GREETING_POOLS' base values: 'Welcome' | 'Welcome back' | 'Good morning' | ...
+  greeting: string; // e.g. "Good morning"
   userName: string;
-}
-
-function formatGreeting(base: string, userName: string): string {
-  const name = userName.trim();
-  if (base === 'Welcome') return name ? `Welcome, ${name}!` : 'Welcome!';
-  if (base === 'Welcome back') return name ? `Welcome back, ${name}.` : 'Welcome back.';
-  return name ? `${base}, ${name}` : `${base}.`;
 }
 
 export function GreetingHeader({ greeting, userName }: Props) {
   const { theme } = useTheme();
 
+  const name = userName.trim();
+  const formattedGreeting = name ? `${greeting}, ${name}!` : `${greeting}!`;
+
   return (
     <View style={styles.wrap}>
-      <Text
-        style={{
-          fontFamily: theme.fonts.bodyBold,
-          fontSize: 11 * theme.textScale,
-          letterSpacing: 1.4,
-          textTransform: 'uppercase',
-          color: theme.colors.textLow,
-          marginBottom: 6,
-        }}
-      >
-        {formatGreeting(greeting, userName)}
-      </Text>
-      <Text
-        style={{
-          fontFamily: theme.fonts.displayItalic,
-          fontSize: 28 * theme.textScale,
-          color: theme.colors.textHi,
-        }}
-      >
-        Slumbering
-      </Text>
+      <View style={styles.textCol}>
+        <Text
+          numberOfLines={1}
+          style={{
+            fontFamily: theme.fonts.bodyBold,
+            fontSize: 11 * theme.textScale,
+            letterSpacing: 1.4,
+            textTransform: 'uppercase',
+            color: theme.colors.textLow,
+            marginBottom: 8,
+          }}
+        >
+          {formattedGreeting}
+        </Text>
+        {/* 10% larger than the base 38px wordmark / 56px mascot used elsewhere. */}
+        <SlumberingWordmark height={41.8 * theme.textScale} />
+      </View>
+      <MoonMascot size={61.6} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: { marginBottom: 18, marginTop: 4 },
+  wrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+    marginBottom: 22,
+    marginTop: 4,
+  },
+  textCol: {
+    flex: 1,
+  },
 });

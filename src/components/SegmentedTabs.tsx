@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { useTheme } from '../theme/ThemeContext';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useTheme } from '../theme/ThemeProvider';
 
 interface Tab {
   key: string;
@@ -19,27 +20,41 @@ export function SegmentedTabs({ tabs, activeKey, onChange }: Props) {
     <View style={styles.row}>
       {tabs.map((tab) => {
         const active = tab.key === activeKey;
+        const label = (
+          <Text
+            style={{
+              fontFamily: theme.fonts.bodyBold,
+              fontSize: 13 * theme.textScale,
+              color: active ? theme.colors.ctaText : theme.colors.textMid,
+            }}
+          >
+            {tab.label}
+          </Text>
+        );
+
+        if (active) {
+          return (
+            <LinearGradient
+              key={tab.key}
+              colors={[theme.colors.ctaGradientFrom, theme.colors.ctaGradientVia, theme.colors.ctaGradientTo]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0.4 }}
+              style={styles.tab}
+            >
+              <Pressable onPress={() => onChange(tab.key)} style={styles.tabFill}>
+                {label}
+              </Pressable>
+            </LinearGradient>
+          );
+        }
+
         return (
           <Pressable
             key={tab.key}
             onPress={() => onChange(tab.key)}
-            style={[
-              styles.tab,
-              {
-                backgroundColor: active ? theme.colors.accent : theme.colors.bgCard,
-                borderColor: active ? 'transparent' : theme.colors.hairline,
-              },
-            ]}
+            style={[styles.tab, { backgroundColor: theme.colors.bgCardStrong, borderColor: theme.colors.borderSubtle, borderWidth: 1.5 }]}
           >
-            <Text
-              style={{
-                fontFamily: theme.fonts.bodyBold,
-                fontSize: 13 * theme.textScale,
-                color: active ? theme.colors.accentContrastText : theme.colors.textMid,
-              }}
-            >
-              {tab.label}
-            </Text>
+            {label}
           </Pressable>
         );
       })}
@@ -54,7 +69,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 10,
     paddingHorizontal: 6,
-    borderRadius: 12,
-    borderWidth: 1,
+    borderRadius: 999,
+  },
+  tabFill: {
+    width: '100%',
+    alignItems: 'center',
   },
 });

@@ -1,85 +1,65 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { useTheme } from '../../theme/ThemeContext';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useTheme } from '../../theme/ThemeProvider';
 import { Card } from '../../components/Card';
-import { ACCENT_ORDER, ACCENTS } from '../../theme/accents';
-import { AccentKey, TextSizeKey, ThemeMode } from '../../types/models';
+import { TextSizeKey, ThemeMode } from '../../types/domain';
 
-const TEXT_SIZES: { key: TextSizeKey; label: string }[] = [
-  { key: 'small', label: 'Small' },
-  { key: 'medium', label: 'Medium' },
-  { key: 'large', label: 'Large' },
-];
+const TEXT_SIZE_ORDER: TextSizeKey[] = ['small', 'medium', 'large'];
+const TEXT_SIZE_LABELS: Record<TextSizeKey, string> = { small: 'Small', medium: 'Medium', large: 'Large' };
+const THEME_LABELS: Record<ThemeMode, string> = { light: 'Light', dark: 'Dark' };
 
 export function AppearanceSection() {
-  const { theme, mode, accent, textSize, setMode, setAccent, setTextSize } = useTheme();
+  const { theme, mode, textSize, setMode, setTextSize } = useTheme();
 
   return (
     <Card>
-      <Text style={{ fontFamily: theme.fonts.bodyMedium, fontSize: 14 * theme.textScale, color: theme.colors.textHi, marginBottom: 8 }}>
-        Theme
-      </Text>
+      <Text style={{ fontFamily: theme.fonts.bodyMedium, fontSize: 14 * theme.textScale, color: theme.colors.textHi, marginBottom: 8 }}>Theme</Text>
       <View style={styles.row}>
-        {(['light', 'dark'] as ThemeMode[]).map((m) => (
-          <Pressable
-            key={m}
-            onPress={() => setMode(m)}
-            style={[
-              styles.segment,
-              { backgroundColor: mode === m ? theme.colors.accent : theme.colors.bgCardStrong, borderColor: theme.colors.hairline },
-            ]}
-          >
-            <Text
-              style={{
-                fontFamily: theme.fonts.bodyBold,
-                fontSize: 13,
-                color: mode === m ? theme.colors.accentContrastText : theme.colors.textMid,
-                textTransform: 'capitalize',
-              }}
-            >
-              {m}
+        {(['light', 'dark'] as ThemeMode[]).map((m) => {
+          const active = mode === m;
+          const label = (
+            <Text style={{ fontFamily: theme.fonts.bodyBold, fontSize: 13, color: active ? theme.colors.ctaText : theme.colors.textMid }}>
+              {THEME_LABELS[m]}
             </Text>
-          </Pressable>
-        ))}
-      </View>
-
-      <Text style={{ fontFamily: theme.fonts.bodyMedium, fontSize: 14 * theme.textScale, color: theme.colors.textHi, marginTop: 18, marginBottom: 8 }}>
-        Accent
-      </Text>
-      <View style={styles.swatchRow}>
-        {ACCENT_ORDER.map((key) => (
-          <Pressable
-            key={key}
-            onPress={() => setAccent(key)}
-            style={[
-              styles.swatch,
-              { backgroundColor: ACCENTS[key].hex, borderColor: accent === key ? theme.colors.textHi : 'transparent' },
-            ]}
-          />
-        ))}
+          );
+          if (active) {
+            return (
+              <LinearGradient
+                key={m}
+                colors={[theme.colors.ctaGradientFrom, theme.colors.ctaGradientVia, theme.colors.ctaGradientTo]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0.4 }}
+                style={styles.segment}
+              >
+                {label}
+              </LinearGradient>
+            );
+          }
+          return (
+            <Pressable
+              key={m}
+              onPress={() => setMode(m)}
+              style={[styles.segment, { backgroundColor: theme.colors.bgCardStrong, borderColor: theme.colors.borderSubtle, borderWidth: 1.5 }]}
+            >
+              {label}
+            </Pressable>
+          );
+        })}
       </View>
 
       <Text style={{ fontFamily: theme.fonts.bodyMedium, fontSize: 14 * theme.textScale, color: theme.colors.textHi, marginTop: 18, marginBottom: 8 }}>
         Text size
       </Text>
       <View style={styles.row}>
-        {TEXT_SIZES.map((t) => (
+        {TEXT_SIZE_ORDER.map((key) => (
           <Pressable
-            key={t.key}
-            onPress={() => setTextSize(t.key)}
-            style={[
-              styles.segment,
-              { backgroundColor: textSize === t.key ? theme.colors.accent : theme.colors.bgCardStrong, borderColor: theme.colors.hairline },
-            ]}
+            key={key}
+            onPress={() => setTextSize(key)}
+            style={[styles.segment, { backgroundColor: textSize === key ? theme.colors.accent : theme.colors.bgCardStrong, borderColor: theme.colors.hairline }]}
           >
-            <Text
-              style={{
-                fontFamily: theme.fonts.bodyBold,
-                fontSize: 12.5,
-                color: textSize === t.key ? theme.colors.accentContrastText : theme.colors.textMid,
-              }}
-            >
-              {t.label}
+            <Text style={{ fontFamily: theme.fonts.bodyBold, fontSize: 12.5, color: textSize === key ? theme.colors.accentContrastText : theme.colors.textMid }}>
+              {TEXT_SIZE_LABELS[key]}
             </Text>
           </Pressable>
         ))}
@@ -90,7 +70,5 @@ export function AppearanceSection() {
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: 8 },
-  segment: { flex: 1, alignItems: 'center', paddingVertical: 9, borderRadius: 12, borderWidth: 1 },
-  swatchRow: { flexDirection: 'row', gap: 12 },
-  swatch: { width: 30, height: 30, borderRadius: 15, borderWidth: 2 },
+  segment: { flex: 1, alignItems: 'center', paddingVertical: 10, borderRadius: 24 },
 });

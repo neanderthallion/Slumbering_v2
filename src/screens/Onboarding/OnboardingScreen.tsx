@@ -2,49 +2,52 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import { MoonMascot } from '../../components/MoonMascot';
 
-import { useTheme } from '../../theme/ThemeContext';
-import { useAppData } from '../../data/AppDataContext';
+import { useTheme } from '../../theme/ThemeProvider';
+import { useSettingsStore } from '../../store/settingsStore';
 import { Card } from '../../components/Card';
 import { Button } from '../../components/Button';
-import { ACCENT_ORDER, ACCENTS } from '../../theme/accents';
-import { AccentKey, ThemeMode } from '../../types/models';
+import { ThemeMode } from '../../types/domain';
+import { cleanDisplayName } from '../../features/settings/logic/profile';
+
+const THEME_LABELS: Record<ThemeMode, string> = { light: 'Light', dark: 'Dark' };
 
 export function OnboardingScreen() {
-  const { theme, mode, accent, setMode, setAccent } = useTheme();
-  const { updateSettings } = useAppData();
+  const { theme, mode, setMode } = useTheme();
+  const setDisplayName = useSettingsStore((s) => s.setDisplayName);
+  const setHasOnboarded = useSettingsStore((s) => s.setHasOnboarded);
   const [name, setName] = useState('');
 
   function handleGetStarted() {
-    updateSettings((prev) => ({ ...prev, userName: name.trim(), hasOnboarded: true }));
+    setDisplayName(cleanDisplayName(name));
+    setHasOnboarded(true);
   }
 
   return (
     <LinearGradient colors={[theme.colors.bgGradientTop, theme.colors.bgGradientBottom]} style={styles.fill}>
       <SafeAreaView style={styles.fill} edges={['top', 'bottom']}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <Text
-            style={{
-              fontFamily: theme.fonts.bodyBold,
-              fontSize: 11 * theme.textScale,
-              letterSpacing: 1.4,
-              textTransform: 'uppercase',
-              color: theme.colors.textLow,
-              marginBottom: 6,
-            }}
-          >
-            Welcome
-          </Text>
-          <Text
-            style={{
-              fontFamily: theme.fonts.displayItalic,
-              fontSize: 28 * theme.textScale,
-              color: theme.colors.textHi,
-              marginBottom: 20,
-            }}
-          >
-            Let's set up Slumbering
-          </Text>
+          <View style={styles.introRow}>
+            <View style={{ flex: 1 }}>
+              <Text
+                style={{
+                  fontFamily: theme.fonts.bodyBold,
+                  fontSize: 11 * theme.textScale,
+                  letterSpacing: 1.4,
+                  textTransform: 'uppercase',
+                  color: theme.colors.textLow,
+                  marginBottom: 8,
+                }}
+              >
+                Welcome
+              </Text>
+              <Text style={{ fontFamily: theme.fonts.display, fontSize: 26 * theme.textScale, lineHeight: 33 * theme.textScale, color: theme.colors.textHi }}>
+                {"Let's set up Slumbering"}
+              </Text>
+            </View>
+            <MoonMascot size={52} />
+          </View>
 
           <Card>
             <Text style={{ fontFamily: theme.fonts.bodyMedium, fontSize: 14 * theme.textScale, color: theme.colors.textHi, marginBottom: 8 }}>
@@ -55,58 +58,46 @@ export function OnboardingScreen() {
               onChangeText={setName}
               placeholder="Your name"
               placeholderTextColor={theme.colors.textLow}
-              style={[
-                styles.input,
-                { backgroundColor: theme.colors.bgCardStrong, borderColor: theme.colors.hairline, color: theme.colors.textHi },
-              ]}
+              style={[styles.input, { backgroundColor: theme.colors.bgCardStrong, borderColor: theme.colors.hairline, color: theme.colors.textHi }]}
             />
             <Text style={{ fontFamily: theme.fonts.body, fontSize: 12 * theme.textScale, color: theme.colors.textLow, marginTop: 6 }}>
-              Used to personalize your greetings. Optional -- you can add or change this later in Settings.
+              Used to personalize your greetings, optional. You can add or change this later in Settings.
             </Text>
           </Card>
 
           <Card>
-            <Text style={{ fontFamily: theme.fonts.bodyMedium, fontSize: 14 * theme.textScale, color: theme.colors.textHi, marginBottom: 8 }}>
-              Theme
-            </Text>
+            <Text style={{ fontFamily: theme.fonts.bodyMedium, fontSize: 14 * theme.textScale, color: theme.colors.textHi, marginBottom: 8 }}>Theme</Text>
             <View style={styles.row}>
-              {(['light', 'dark'] as ThemeMode[]).map((m) => (
-                <Pressable
-                  key={m}
-                  onPress={() => setMode(m)}
-                  style={[
-                    styles.segment,
-                    { backgroundColor: mode === m ? theme.colors.accent : theme.colors.bgCardStrong, borderColor: theme.colors.hairline },
-                  ]}
-                >
-                  <Text
-                    style={{
-                      fontFamily: theme.fonts.bodyBold,
-                      fontSize: 13,
-                      color: mode === m ? theme.colors.accentContrastText : theme.colors.textMid,
-                      textTransform: 'capitalize',
-                    }}
-                  >
-                    {m}
+              {(['light', 'dark'] as ThemeMode[]).map((m) => {
+                const active = mode === m;
+                const label = (
+                  <Text style={{ fontFamily: theme.fonts.bodyBold, fontSize: 13, color: active ? theme.colors.ctaText : theme.colors.textMid }}>
+                    {THEME_LABELS[m]}
                   </Text>
-                </Pressable>
-              ))}
-            </View>
-
-            <Text style={{ fontFamily: theme.fonts.bodyMedium, fontSize: 14 * theme.textScale, color: theme.colors.textHi, marginTop: 18, marginBottom: 8 }}>
-              Accent color
-            </Text>
-            <View style={styles.swatchRow}>
-              {ACCENT_ORDER.map((key: AccentKey) => (
-                <Pressable
-                  key={key}
-                  onPress={() => setAccent(key)}
-                  style={[
-                    styles.swatch,
-                    { backgroundColor: ACCENTS[key].hex, borderColor: accent === key ? theme.colors.textHi : 'transparent' },
-                  ]}
-                />
-              ))}
+                );
+                if (active) {
+                  return (
+                    <LinearGradient
+                      key={m}
+                      colors={[theme.colors.ctaGradientFrom, theme.colors.ctaGradientVia, theme.colors.ctaGradientTo]}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 0.4 }}
+                      style={styles.segment}
+                    >
+                      {label}
+                    </LinearGradient>
+                  );
+                }
+                return (
+                  <Pressable
+                    key={m}
+                    onPress={() => setMode(m)}
+                    style={[styles.segment, { backgroundColor: theme.colors.bgCardStrong, borderColor: theme.colors.borderSubtle, borderWidth: 1.5 }]}
+                  >
+                    {label}
+                  </Pressable>
+                );
+              })}
             </View>
           </Card>
 
@@ -120,9 +111,8 @@ export function OnboardingScreen() {
 const styles = StyleSheet.create({
   fill: { flex: 1 },
   content: { padding: 20, paddingTop: 24, paddingBottom: 40 },
-  input: { borderRadius: 12, borderWidth: 1, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15 },
+  introRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 20 },
+  input: { borderRadius: 16, borderWidth: 1.5, paddingHorizontal: 16, paddingVertical: 13, fontSize: 15 },
   row: { flexDirection: 'row', gap: 8 },
-  segment: { flex: 1, alignItems: 'center', paddingVertical: 9, borderRadius: 12, borderWidth: 1 },
-  swatchRow: { flexDirection: 'row', gap: 12 },
-  swatch: { width: 30, height: 30, borderRadius: 15, borderWidth: 2 },
+  segment: { flex: 1, alignItems: 'center', paddingVertical: 10, borderRadius: 24 },
 });

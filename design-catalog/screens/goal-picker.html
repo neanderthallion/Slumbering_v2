@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Goal Picker — Slumbering Design Catalog</title>
+<link rel="stylesheet" href="../assets/catalog.css">
+</head>
+<body>
+
+<nav class="sidebar">
+  <a class="sidebar-brand" href="../index.html"><img src="../assets/illustrations/Slumbering_title.png" alt="Slumbering"></a>
+  <div class="sidebar-group"><h3>Overview</h3><ul><li><a href="../index.html">Catalog home</a></li></ul></div>
+  <div class="sidebar-group">
+    <h3>Screens</h3>
+    <ul>
+      <li><a href="onboarding.html">Onboarding</a></li>
+      <li><a href="home.html">Home</a></li>
+      <li><a href="goal-picker.html" class="active">Goal Picker</a></li>
+      <li><a href="tonight-confirmation.html">Tonight Confirmation</a></li>
+      <li><a href="check-in.html">Check-In</a></li>
+      <li><a href="journey.html">Journey</a></li>
+      <li><a href="add-past-record.html">Add Past Record (modal)</a></li>
+      <li><a href="bedtime.html">Bedtime</a></li>
+      <li><a href="settings.html">Settings</a></li>
+      <li><a href="sleep-science.html">Sleep Science</a></li>
+    </ul>
+  </div>
+  <div class="sidebar-group">
+    <h3>Reference</h3>
+    <ul><li><a href="../popups.html">Popups &amp; dialogs</a></li><li><a href="../components.html">Components</a></li><li><a href="../tokens.html">Design tokens</a></li></ul>
+  </div>
+</nav>
+
+<main class="main">
+  <div class="page-header">
+    <p class="eyebrow">Screen · Route "GoalPicker"</p>
+    <h1 class="page-title">Goal Picker</h1>
+    <p class="page-lede"><code>src/screens/GoalPicker/GoalPickerScreen.tsx</code> — one screen, two modes: <code>{ mode: 'create' | 'edit' }</code> route param.</p>
+    <div class="chip-row">
+      <span class="chip">Pushed screen</span>
+      <span class="chip">Back row → <strong>Home</strong></span>
+      <span class="chip">create mode → confirm goes to <strong>Tonight Confirmation</strong></span>
+      <span class="chip">edit mode → confirm updates today's record directly</span>
+    </div>
+  </div>
+
+  <div class="screen-layout">
+    <div class="mockup-col">
+      <div class="mockup-label"><span>Preview</span><button class="theme-toggle" onclick="toggleMockupTheme(this)">Preview: dark</button></div>
+      <div class="phone-frame" data-theme="dark">
+        <div class="phone-screen">
+          <div class="status-bar"><span>9:32</span><span>●●●</span></div>
+          <div class="screen-pad">
+            <p style="font:var(--text-body-lg);font-weight:700;color:var(--text-secondary);margin:10px 0 22px">&lsaquo; Home</p>
+            <h2 style="font:var(--text-display-sm);font-family:var(--font-display);margin:0 0 12px">Pick your goals for tonight</h2>
+            <p class="m-body" style="margin-bottom:10px">Tip: Committing to 1-2 goals helps you focus on what is the most important.</p>
+            <p style="font:var(--text-body-sm);color:var(--text-tertiary);margin:0 0 var(--space-4)">0 selected</p>
+
+            <div class="m-tabs" style="margin-bottom:var(--space-4)">
+              <button class="m-tab active">Bedtime</button>
+              <button class="m-tab">Unwind</button>
+              <button class="m-tab">Relaxation</button>
+            </div>
+
+            <div class="m-card">
+              <div class="m-goal-row"><span class="m-checkbox"></span><span class="m-body" style="flex:1;color:var(--text-primary)">Sleep before 11:00 PM</span><span style="opacity:.55">✎</span></div>
+              <div class="m-goal-row"><span class="m-checkbox"></span><span class="m-body" style="flex:1;color:var(--text-primary)">Be in bed by 10:45 PM</span><span style="opacity:.55">✎</span></div>
+              <div class="m-goal-row"><span class="m-checkbox"></span><span class="m-body" style="flex:1;color:var(--text-primary)">Wake up at 6:30 AM</span><span style="opacity:.55">✎</span></div>
+              <div class="m-row" style="margin-top:var(--space-4)">
+                <div style="flex:1;background:var(--surface-sunken);border-radius:var(--radius-pill);padding:13px 18px;color:var(--text-tertiary);font:var(--text-body)">Add your own…</div>
+                <button class="m-btn ghost" style="padding:13px 20px">Add</button>
+              </div>
+            </div>
+
+            <div style="background:var(--moon-glow-100);border-radius:var(--radius-md);padding:14px;margin-bottom:14px;display:none" id="gp-disclaimer">
+              <p style="font:var(--text-body-sm);color:#7a5a13;margin:0 0 10px">Sleep experts generally recommend an earlier bedtime. Would you like to continue with this goal?</p>
+              <div class="m-row" style="justify-content:flex-end;gap:8px">
+                <button class="m-btn ghost" style="padding:8px 16px;font-size:13px">Change goal</button>
+                <button class="m-btn primary" style="padding:8px 16px;font-size:13px">Continue</button>
+              </div>
+            </div>
+
+            <div class="m-row" style="margin-top:var(--space-5)">
+              <button class="m-btn ghost" style="flex:1">Cancel</button>
+              <button class="m-btn primary" style="flex:1;opacity:.5">Confirm goals</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notes-col">
+      <div class="notes-section">
+        <h2>Purpose</h2>
+        <p>Select which sleep goals apply tonight (create mode) or revise today's already-set goals (edit mode, pre-seeded from today's existing record).</p>
+      </div>
+      <div class="notes-section">
+        <h2>Data &amp; state</h2>
+        <ul>
+          <li>Goal pools: <code>settings.suggestedGoals[category]</code>, three categories (Bedtime / Unwind / Relaxation).</li>
+          <li>Editing a suggested goal's label (pencil icon) <strong>permanently rewrites the suggestion bank</strong> (<code>settings.suggestedGoals</code>), not just that one instance, and auto-selects it. The one exception is Add Past Record's own relabeling, which edits a local-only copy.</li>
+          <li>Custom (non-suggested) goals already selected in the active category render as separate removable rows.</li>
+          <li><code>looksLikeUnhealthyBedtime()</code> flags a named bedtime between 12:00am–4:59am via regex — non-blocking, shown inline as "Continue" / "Change goal", never prevents saving.</li>
+        </ul>
+      </div>
+      <div class="notes-section">
+        <h2>Conditional states</h2>
+        <div class="state-card"><h3>Disclaimer shown</h3><p>Inline below the card when a selected/added/edited goal trips the unhealthy-bedtime heuristic. See <a class="nav-link" href="../popups.html#disclaimer">Disclaimer Dialog</a>.</p></div>
+        <div class="state-card"><h3>Confirm disabled</h3><p>"Confirm goals" stays disabled (dim) until at least 1 goal is selected.</p></div>
+      </div>
+      <div class="notes-section">
+        <h2>User actions &amp; navigation</h2>
+        <ul>
+          <li>Back row → <a class="nav-link" href="home.html">Home</a></li>
+          <li>Category tabs filter the suggestion list</li>
+          <li>Cancel → <a class="nav-link" href="home.html">Home</a></li>
+          <li>Confirm goals (create mode) → <a class="nav-link" href="tonight-confirmation.html">Tonight Confirmation</a>, passing the selected goals as a route param</li>
+          <li>Confirm goals (edit mode) → updates today's record directly, returns to Home</li>
+        </ul>
+      </div>
+      <div class="notes-section">
+        <h2>Components used</h2>
+        <p><a class="nav-link" href="../components.html#tabs">Category tabs</a>, <a class="nav-link" href="../components.html#card">Card</a>, <a class="nav-link" href="../components.html#checkbox">Checkbox</a>, <a class="nav-link" href="../components.html#button">Button</a>, <a class="nav-link" href="../popups.html#disclaimer">DisclaimerDialog</a>.</p>
+      </div>
+    </div>
+  </div>
+</main>
+<script src="../assets/catalog.js"></script>
+<script>
+  document.querySelectorAll('.m-tab').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      btn.parentElement.querySelectorAll('.m-tab').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text } from 'react-native';
 import { Card } from '../../components/Card';
-import { useTheme } from '../../theme/ThemeContext';
+import { useTheme } from '../../theme/ThemeProvider';
 
 interface Props {
   message: string;
@@ -11,11 +11,11 @@ interface Props {
 export function TodaysMessageCard({ message, subMessage }: Props) {
   const { theme } = useTheme();
   return (
-    <Card>
+    <Card variant="organic">
       <Text
         style={{
-          fontFamily: theme.fonts.displayItalic,
-          fontSize: 18 * theme.textScale,
+          fontFamily: theme.fonts.bodyBold,
+          fontSize: 16 * theme.textScale,
           lineHeight: 26 * theme.textScale,
           color: theme.colors.textHi,
         }}

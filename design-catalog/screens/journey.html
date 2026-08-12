@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Journey — Slumbering Design Catalog</title>
+<link rel="stylesheet" href="../assets/catalog.css">
+</head>
+<body>
+
+<nav class="sidebar">
+  <a class="sidebar-brand" href="../index.html"><img src="../assets/illustrations/Slumbering_title.png" alt="Slumbering"></a>
+  <div class="sidebar-group"><h3>Overview</h3><ul><li><a href="../index.html">Catalog home</a></li></ul></div>
+  <div class="sidebar-group">
+    <h3>Screens</h3>
+    <ul>
+      <li><a href="onboarding.html">Onboarding</a></li>
+      <li><a href="home.html">Home</a></li>
+      <li><a href="goal-picker.html">Goal Picker</a></li>
+      <li><a href="tonight-confirmation.html">Tonight Confirmation</a></li>
+      <li><a href="check-in.html">Check-In</a></li>
+      <li><a href="journey.html" class="active">Journey</a></li>
+      <li><a href="add-past-record.html">Add Past Record (modal)</a></li>
+      <li><a href="bedtime.html">Bedtime</a></li>
+      <li><a href="settings.html">Settings</a></li>
+      <li><a href="sleep-science.html">Sleep Science</a></li>
+    </ul>
+  </div>
+  <div class="sidebar-group"><h3>Reference</h3><ul><li><a href="../popups.html">Popups &amp; dialogs</a></li><li><a href="../components.html">Components</a></li><li><a href="../tokens.html">Design tokens</a></li></ul></div>
+</nav>
+
+<main class="main">
+  <div class="page-header">
+    <p class="eyebrow">Screen · Route "Journey"</p>
+    <h1 class="page-title">Journey</h1>
+    <p class="page-lede"><code>src/screens/Journey/JourneyScreen.tsx</code> — all-time stats, the 7 fixed badges, and the full reverse-chronological history timeline.</p>
+    <div class="chip-row">
+      <span class="chip">Pushed screen</span>
+      <span class="chip">Back row → <strong>Home</strong></span>
+      <span class="chip">FAB → <strong>Add Past Record</strong> (modal)</span>
+    </div>
+  </div>
+
+  <div class="screen-layout">
+    <div class="mockup-col">
+      <div class="mockup-label"><span>Preview</span><button class="theme-toggle" onclick="toggleMockupTheme(this)">Preview: dark</button></div>
+      <div class="phone-frame" data-theme="dark">
+        <div class="phone-screen">
+          <div class="status-bar"><span>9:32</span><span>●●●</span></div>
+          <div class="screen-pad" style="position:relative;min-height:660px">
+            <p style="font:var(--text-body-lg);font-weight:700;color:var(--text-secondary);margin:10px 0 22px">&lsaquo; Home</p>
+            <h2 style="font:var(--text-display-sm);font-family:var(--font-display);margin:0 0 var(--space-4)">Journey</h2>
+
+            <div class="m-card" style="background:var(--dusk-700);color:var(--night-text)">
+              <div class="m-row" style="gap:var(--space-5)">
+                <div class="m-ring-wrap" style="--pct:33">
+                  <div class="m-ring"></div>
+                  <div class="m-ring-inner" style="background:var(--dusk-700)">
+                    <span class="m-numeral-sm" style="color:var(--night-text)">33%</span>
+                    <span style="font:var(--text-caption);color:var(--night-text-dim)">All-time</span>
+                  </div>
+                </div>
+                <div>
+                  <p style="font:var(--text-body-lg);font-weight:700;color:var(--night-text);margin:0 0 6px">3 night(s) logged</p>
+                  <p style="font:var(--text-body-sm);color:var(--night-text-dim);margin:0 0 2px">1 fully successful, all-time</p>
+                  <p style="font:var(--text-body-sm);color:var(--night-text-dim);margin:0">1-night longest streak</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="m-card">
+              <p class="m-eyebrow">Badges</p>
+              <div class="m-row" style="gap:var(--space-4);overflow-x:auto;padding-bottom:2px">
+                <div class="m-badge">
+                  <div class="m-badge-icon"><span class="star">★</span></div>
+                  <div class="m-badge-ribbon">First step</div>
+                  <p class="m-badge-label">First Step</p>
+                </div>
+                <div class="m-badge locked"><div class="m-badge-icon"><span class="star">★</span></div><div class="m-badge-ribbon">Full week</div><p class="m-badge-label">Full Week</p></div>
+                <div class="m-badge locked"><div class="m-badge-icon"><span class="star">★</span></div><div class="m-badge-ribbon">One month</div><p class="m-badge-label">One Month</p></div>
+                <div class="m-badge locked"><div class="m-badge-icon"><span class="star">★</span></div><div class="m-badge-ribbon">Welcome back</div><p class="m-badge-label">Welcome Back</p></div>
+              </div>
+            </div>
+
+            <p class="m-eyebrow" style="margin-top:var(--space-5);margin-bottom:var(--space-3)">History</p>
+            <div style="position:relative;padding-left:20px;border-left:2px solid var(--border-hairline)">
+              <div style="margin-bottom:var(--space-5);position:relative">
+                <span style="position:absolute;left:-26px;top:2px;width:9px;height:9px;border-radius:50%;background:var(--moon-glow-300)"></span>
+                <p style="font:var(--text-caption);letter-spacing:1.5px;text-transform:uppercase;color:var(--text-tertiary);margin:0 0 8px">Aug 9, 2026</p>
+                <div class="m-row" style="margin-bottom:6px"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent-sage);flex:none"></span><span class="m-body" style="color:var(--text-primary)">Sleep before 11:00 PM</span></div>
+                <div class="m-row"><span style="width:8px;height:8px;border-radius:50%;border:1.5px solid var(--border-subtle);flex:none"></span><span class="m-body">Practice breathing or meditation for 5 minutes before bed</span></div>
+              </div>
+              <div style="margin-bottom:var(--space-5);position:relative">
+                <span style="position:absolute;left:-26px;top:2px;width:9px;height:9px;border-radius:50%;background:var(--moon-glow-300)"></span>
+                <p style="font:var(--text-caption);letter-spacing:1.5px;text-transform:uppercase;color:var(--text-tertiary);margin:0 0 8px">Aug 8, 2026 · Added later</p>
+                <div class="m-row" style="margin-bottom:6px"><span style="width:8px;height:8px;border-radius:50%;border:1.5px solid var(--border-subtle);flex:none"></span><span class="m-body">Sleep before 11:00 PM</span></div>
+                <div class="m-row"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent-sage);flex:none"></span><span class="m-body" style="color:var(--text-primary)">Practice breathing or meditation for 5 minutes before bed</span></div>
+              </div>
+              <div style="margin-bottom:var(--space-5);position:relative">
+                <span style="position:absolute;left:-26px;top:2px;width:9px;height:9px;border-radius:50%;background:var(--accent-sage)"></span>
+                <p style="font:var(--text-body);font-weight:700;color:var(--accent-sage);margin:0">✦ First night on Slumbering.</p>
+              </div>
+              <div style="position:relative">
+                <span style="position:absolute;left:-26px;top:2px;width:9px;height:9px;border-radius:50%;background:var(--moon-glow-300)"></span>
+                <p style="font:var(--text-caption);letter-spacing:1.5px;text-transform:uppercase;color:var(--text-tertiary);margin:0 0 8px">Aug 7, 2026 · Added later</p>
+                <div class="m-row" style="margin-bottom:6px"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent-sage);flex:none"></span><span class="m-body" style="color:var(--text-primary)">Sleep before 11:00 PM</span></div>
+                <div class="m-row"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent-sage);flex:none"></span><span class="m-body" style="color:var(--text-primary)">Wake up at 5:30 AM</span></div>
+              </div>
+            </div>
+
+            <div style="position:sticky;bottom:14px;display:flex;justify-content:flex-end;margin-top:var(--space-5)">
+              <div style="width:54px;height:54px;border-radius:50%;background:var(--moon-glow-300);box-shadow:var(--shadow-raised);display:flex;align-items:center;justify-content:center">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--dusk-900)" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notes-col">
+      <div class="notes-section">
+        <h2>Purpose</h2>
+        <p>The full picture: lifetime success rate, the 7 fixed badges, and every logged night/milestone in one scrollable, reverse-chronological timeline.</p>
+      </div>
+      <div class="notes-section">
+        <h2>Data &amp; state</h2>
+        <ul>
+          <li>All-time progress ring (% of checked-in nights fully achieved) + "N night(s) logged" + fully-successful count + longest streak.</li>
+          <li>7 fixed <code>BADGE_DEFINITIONS</code> (<code>badges.ts</code>) always render in a horizontally scrolling row; unearned ones render dim/locked.</li>
+          <li>History merges night records with milestone entries (e.g. "First night on Slumbering.") into one reverse-chronological list. Entries added via Add Past Record are labeled "Added later." Empty-state text when there are no entries yet.</li>
+        </ul>
+      </div>
+      <div class="notes-section">
+        <h2>The 7 badges</h2>
+        <table class="spec-table">
+          <tr><th>Badge</th><th>Trigger</th></tr>
+          <tr><td>First Step</td><td>Completed your first check-in ever.</td></tr>
+          <tr><td>Full Week</td><td>7 calendar-consecutive days with at least one goal achieved each night (not full achievement).</td></tr>
+          <tr><td>One Month</td><td>Cumulative, non-consecutive count of 30 checked-in nights all-time.</td></tr>
+          <tr><td>Welcome Back</td><td>Returned and checked in after a ≥5-day gap — a once-ever celebration, deliberately a different threshold from the 3+ day "returning" companion-message tier.</td></tr>
+          <tr><td>Go Getter</td><td>Reaches a fully-achieved-nights milestone.</td></tr>
+          <tr><td>Full Night</td><td>Accumulates (non-consecutively) 10 nights whose derived sleep duration is ≥7 hours.</td></tr>
+          <tr><td>Steady Rhythm</td><td>A 14 calendar-consecutive-night run whose bedtimes each fall within ±30 min of that window's own average.</td></tr>
+        </table>
+        <p style="font:var(--text-caption);color:var(--text-tertiary);margin-top:8px">There is no "Early Riser" badge — all 7 names above are the current, final roster.</p>
+      </div>
+      <div class="notes-section">
+        <h2>User actions &amp; navigation</h2>
+        <ul>
+          <li>Back row → <a class="nav-link" href="home.html">Home</a></li>
+          <li>Floating action button (calendar icon) → <a class="nav-link" href="add-past-record.html">Add Past Record</a> (native modal)</li>
+        </ul>
+      </div>
+      <div class="notes-section">
+        <h2>Components used</h2>
+        <p><a class="nav-link" href="../components.html#card">Card</a>, <a class="nav-link" href="../components.html#ring">Progress ring</a>, <a class="nav-link" href="../components.html#badge">Badge medallion</a>, timeline rail, FAB.</p>
+      </div>
+    </div>
+  </div>
+</main>
+<script src="../assets/catalog.js"></script>
+</body>
+</html>

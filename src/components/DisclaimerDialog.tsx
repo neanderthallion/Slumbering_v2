@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { useTheme } from '../theme/ThemeContext';
+import { useTheme } from '../theme/ThemeProvider';
 import { Button } from './Button';
 
 interface Props {
@@ -12,12 +12,7 @@ interface Props {
 export function DisclaimerDialog({ message, onContinue, onChangeGoal }: Props) {
   const { theme } = useTheme();
   return (
-    <View
-      style={[
-        styles.box,
-        { backgroundColor: 'rgba(240,178,94,0.12)', borderColor: 'rgba(240,178,94,0.4)' },
-      ]}
-    >
+    <View style={[styles.box, { backgroundColor: 'rgba(252,226,166,0.14)', borderColor: 'rgba(252,226,166,0.4)' }]}>
       <Text
         style={{
           fontFamily: theme.fonts.body,
@@ -39,9 +34,9 @@ export function DisclaimerDialog({ message, onContinue, onChangeGoal }: Props) {
 
 const styles = StyleSheet.create({
   box: {
-    borderWidth: 1,
-    borderRadius: 14,
-    padding: 14,
+    borderWidth: 1.5,
+    borderRadius: 24,
+    padding: 16,
     marginTop: 4,
     marginBottom: 14,
   },

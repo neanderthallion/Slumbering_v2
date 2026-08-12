@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Components — Slumbering Design Catalog</title>
+<link rel="stylesheet" href="assets/catalog.css">
+</head>
+<body>
+
+<nav class="sidebar">
+  <a class="sidebar-brand" href="index.html"><img src="assets/illustrations/Slumbering_title.png" alt="Slumbering"></a>
+  <div class="sidebar-group"><h3>Overview</h3><ul><li><a href="index.html">Catalog home</a></li></ul></div>
+  <div class="sidebar-group">
+    <h3>Screens</h3>
+    <ul>
+      <li><a href="screens/onboarding.html">Onboarding</a></li>
+      <li><a href="screens/home.html">Home</a></li>
+      <li><a href="screens/goal-picker.html">Goal Picker</a></li>
+      <li><a href="screens/tonight-confirmation.html">Tonight Confirmation</a></li>
+      <li><a href="screens/check-in.html">Check-In</a></li>
+      <li><a href="screens/journey.html">Journey</a></li>
+      <li><a href="screens/add-past-record.html">Add Past Record (modal)</a></li>
+      <li><a href="screens/bedtime.html">Bedtime</a></li>
+      <li><a href="screens/settings.html">Settings</a></li>
+      <li><a href="screens/sleep-science.html">Sleep Science</a></li>
+    </ul>
+  </div>
+  <div class="sidebar-group"><h3>Reference</h3><ul><li><a href="popups.html">Popups &amp; dialogs</a></li><li><a href="components.html" class="active">Components</a></li><li><a href="tokens.html">Design tokens</a></li></ul></div>
+</nav>
+
+<main class="main">
+  <div class="page-header">
+    <p class="eyebrow">Reference</p>
+    <h1 class="page-title">Reusable components</h1>
+    <p class="page-lede">Every shared UI primitive under <code>src/components/</code> that's used across more than one screen (screen-specific one-offs are documented on their own screen page instead). Shape language: soft 16–40px radii on structural cards, full pill on buttons/badges/chips, and a pink→gold gradient fill reserved for primary actions and active tab/toggle states — see <a class="nav-link" href="tokens.html">Design tokens</a>.</p>
+  </div>
+
+  <div class="gallery-section" id="button">
+    <h2>Button</h2>
+    <p class="desc"><code>Button.tsx</code> — full pill radius, two variants. Primary uses the fixed pink→gold gradient with dark ink text and a soft warm glow shadow — the same gradient in both light and dark theme.</p>
+    <div class="swatch-grid">
+      <div class="demo-box"><span class="demo-label">primary</span><button class="m-btn primary">Get started</button></div>
+      <div class="demo-box"><span class="demo-label">ghost</span><button class="m-btn ghost">Edit goals</button></div>
+      <div class="demo-box"><span class="demo-label">disabled</span><button class="m-btn primary" style="opacity:.5">Confirm goals</button></div>
+    </div>
+  </div>
+
+  <div class="gallery-section" id="card">
+    <h2>Card</h2>
+    <p class="desc"><code>Card.tsx</code> — the base surface. Three variants; <code>night</code> always renders dark regardless of the active app theme; <code>organic</code> is the single asymmetric-radius hero/quote card allowed per screen.</p>
+    <div class="swatch-grid">
+      <div class="demo-box" style="width:100%"><span class="demo-label">plain</span><div class="m-card" style="width:100%;margin:0"><p class="m-body">Soft 24px-radius surface, no border, a barely-there ambient shadow — used almost everywhere.</p></div></div>
+      <div class="demo-box" style="width:100%"><span class="demo-label">organic</span><div class="m-card organic" style="width:100%;margin:0"><p class="m-body">One asymmetric corner radius, reserved for a single hero/quote element per screen (Today's Message on Home, the name field on Onboarding) — never reused elsewhere on the same screen.</p></div></div>
+      <div class="demo-box" style="width:100%"><span class="demo-label">night</span><div class="m-card night" style="width:100%;margin:0"><p style="color:var(--night-text)">Always-dusk fixed surface for bedtime/sleep content (Home's Bedtime Schedule panel, Journey's stats card) — same color in both app themes.</p></div></div>
+    </div>
+  </div>
+
+  <div class="gallery-section" id="checkbox">
+    <h2>Checkbox</h2>
+    <p class="desc"><code>Checkbox.tsx</code> — rounded-square, gold fill + checkmark when checked.</p>
+    <div class="swatch-grid">
+      <div class="demo-box"><span class="demo-label">unchecked</span><span class="m-checkbox"></span></div>
+      <div class="demo-box"><span class="demo-label">checked</span><span class="m-checkbox checked">✓</span></div>
+    </div>
+  </div>
+
+  <div class="gallery-section" id="toggle">
+    <h2>Toggle</h2>
+    <p class="desc"><code>Toggle.tsx</code> — built from scratch (not RN's <code>Switch</code>) so web renders identically to native. "On" track is the pink→gold gradient; the knob carries a small soft shadow.</p>
+    <div class="swatch-grid">
+      <div class="demo-box"><span class="demo-label">off</span><span class="m-toggle"></span></div>
+      <div class="demo-box"><span class="demo-label">on</span><span class="m-toggle on"></span></div>
+    </div>
+  </div>
+
+  <div class="gallery-section" id="yesno">
+    <h2>Yes/No pill</h2>
+    <p class="desc">Used for goal-achieved answers on Check-In and Add Past Record. Two independent pill buttons (not a merged track); the selected one gets the gradient fill.</p>
+    <div class="swatch-grid">
+      <div class="demo-box"><span class="demo-label">unanswered</span><div class="m-yesno"><button>No</button><button>Yes</button></div></div>
+      <div class="demo-box"><span class="demo-label">yes</span><div class="m-yesno"><button>No</button><button class="selected">Yes</button></div></div>
+      <div class="demo-box"><span class="demo-label">no</span><div class="m-yesno"><button class="selected">No</button><button>Yes</button></div></div>
+    </div>
+  </div>
+
+  <div class="gallery-section" id="tabs">
+    <h2>Tabs</h2>
+    <p class="desc">Generic independent pill row — goal-category tabs, the Week/Month period toggle, and the Theme picker. Two active styles: the pink→gold <strong>gradient</strong> (default) and a flat <strong>solid-ink</strong> fill used only by Settings' Text Size control.</p>
+    <div class="swatch-grid">
+      <div class="demo-box" style="width:100%"><span class="demo-label">category tabs — gradient active</span><div class="m-tabs" style="width:100%"><button class="m-tab active">Bedtime</button><button class="m-tab">Unwind</button><button class="m-tab">Relaxation</button></div></div>
+      <div class="demo-box" style="width:100%"><span class="demo-label">period toggle — split, gradient active</span><div class="m-tabs split" style="width:60%"><button class="m-tab active">Week</button><button class="m-tab">Month</button></div></div>
+      <div class="demo-box" style="width:100%"><span class="demo-label">text size — split, solid-ink active</span><div class="m-tabs split" style="width:100%"><button class="m-tab">Small</button><button class="m-tab active-solid">Medium</button><button class="m-tab">Large</button></div></div>
+    </div>
+  </div>
+
+  <div class="gallery-section" id="time-field">
+    <h2>TimeField</h2>
+    <p class="desc"><code>TimeField.tsx</code> — labeled time value, both tap-to-type and tap-icon-to-open the <a class="nav-link" href="popups.html#time-picker">Time Picker panel</a>.</p>
+    <div class="swatch-grid">
+      <div class="demo-box"><span class="demo-label">bedtime field</span><div><p style="font:var(--text-caption);letter-spacing:1.5px;text-transform:uppercase;color:var(--text-tertiary)">Bedtime</p><p class="m-numeral-sm">11:00 PM 🕐</p></div></div>
+    </div>
+  </div>
+
+  <div class="gallery-section" id="goal-list-item">
+    <h2>GoalListItem / EditableGoalListItem</h2>
+    <p class="desc"><code>GoalListItem.tsx</code> — checkbox + label row for a selectable goal. <code>EditableGoalListItem.tsx</code> adds an inline pencil-edit affordance that renames the suggestion in place (Goal Picker rewrites the shared suggestion bank; Add Past Record edits a local-only copy).</p>
+    <div class="swatch-grid">
+      <div class="demo-box" style="width:100%"><span class="demo-label">GoalListItem</span><div class="m-goal-row" style="width:100%"><span class="m-checkbox checked">✓</span><span class="m-body" style="color:var(--text-primary)">Sleep before 11:00 PM</span></div></div>
+      <div class="demo-box" style="width:100%"><span class="demo-label">EditableGoalListItem</span><div class="m-goal-row" style="width:100%"><span class="m-checkbox"></span><span class="m-body" style="flex:1;color:var(--text-primary)">Be in bed by 10:45 PM</span><span style="opacity:.55">✎</span></div></div>
+    </div>
+  </div>
+
+  <div class="gallery-section" id="ring">
+    <h2>Progress ring</h2>
+    <p class="desc">A conic-gradient donut used for Journey's all-time success percentage — gold arc over a sunken track, numeral + caption centered inside.</p>
+    <div class="swatch-grid">
+      <div class="demo-box">
+        <span class="demo-label">33% all-time</span>
+        <div class="m-ring-wrap" style="--pct:33"><div class="m-ring"></div><div class="m-ring-inner"><span class="m-numeral-sm">33%</span><span style="font:var(--text-caption);color:var(--text-tertiary)">All-time</span></div></div>
+      </div>
+      <div class="demo-box">
+        <span class="demo-label">78% all-time</span>
+        <div class="m-ring-wrap" style="--pct:78"><div class="m-ring"></div><div class="m-ring-inner"><span class="m-numeral-sm">78%</span><span style="font:var(--text-caption);color:var(--text-tertiary)">All-time</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gallery-section" id="badge">
+    <h2>Badge medallion</h2>
+    <p class="desc">A circular gold-on-dusk medallion with a star and a ribbon label, used for the 7 fixed achievement badges on Journey. Unearned badges render as a dim, locked silhouette of the same shape.</p>
+    <div class="swatch-grid">
+      <div class="demo-box"><span class="demo-label">earned</span><div class="m-badge"><div class="m-badge-icon"><span class="star">★</span></div><div class="m-badge-ribbon">First step</div><p class="m-badge-label">First Step</p></div></div>
+      <div class="demo-box"><span class="demo-label">locked</span><div class="m-badge locked"><div class="m-badge-icon"><span class="star">★</span></div><div class="m-badge-ribbon">Full week</div><p class="m-badge-label">Full Week</p></div></div>
+    </div>
+  </div>
+
+  <div class="gallery-section" id="journey-wave">
+    <h2>Dot-journey graph</h2>
+    <p class="desc">A week of nights as dots along a dotted rail at varying heights: gold = fully achieved, blush = partially achieved, outline = no record. Used on Home's Journey preview.</p>
+    <div class="swatch-grid">
+      <div class="demo-box" style="width:100%">
+        <span class="demo-label">last 7 nights</span>
+        <div class="m-journey-wave" style="width:100%">
+          <svg viewBox="0 0 300 64" preserveAspectRatio="none">
+            <path class="rail" d="M15 46 L58 46 L101 46 L144 14 L187 30 L230 30 L273 46"/>
+            <circle class="node outline" cx="15" cy="46" r="6"/><circle class="node outline" cx="58" cy="46" r="6"/><circle class="node outline" cx="101" cy="46" r="6"/>
+            <circle class="node gold-ring" cx="144" cy="14" r="9"/><circle class="node blush" cx="187" cy="30" r="7"/><circle class="node blush" cx="230" cy="30" r="7"/>
+            <circle class="node outline" cx="273" cy="46" r="6"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gallery-section" id="linechart">
+    <h2>Line chart</h2>
+    <p class="desc">Bedtime/wake-time regularity series on the Bedtime screen — a colored line over a dashed target reference, one point per logged night in the period.</p>
+    <div class="swatch-grid">
+      <div class="demo-box" style="width:100%">
+        <span class="demo-label">bedtime series</span>
+        <div class="m-linechart" style="width:100%;height:100px">
+          <svg viewBox="0 0 300 100" preserveAspectRatio="none">
+            <line class="target" x1="0" y1="70" x2="300" y2="70"/>
+            <polyline class="series bedtime" points="40,70 150,20 260,70"/>
+            <circle class="node bedtime" cx="40" cy="70" r="5"/><circle class="node bedtime" cx="150" cy="20" r="5"/><circle class="node bedtime" cx="260" cy="70" r="5"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gallery-section" id="barchart">
+    <h2>Bar chart</h2>
+    <p class="desc">Sleep-duration series on the Bedtime screen — sage-green bars over a dashed target line, one bar per logged night.</p>
+    <div class="swatch-grid">
+      <div class="demo-box" style="width:100%">
+        <span class="demo-label">duration series</span>
+        <div class="m-barchart" style="width:100%;height:100px">
+          <div class="bar" style="height:0;background:transparent"></div>
+          <div class="bar" style="height:0;background:transparent"></div>
+          <div class="bar" style="height:75%"></div>
+          <div class="bar" style="height:82%"></div>
+          <div class="bar" style="height:75%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gallery-section" id="illustrations">
+    <h2>Icons &amp; illustrations</h2>
+    <p class="desc">Bespoke hand-drawn-feeling flat SVGs — never photographic, never 3D. Mascot/weather illustrations plus a small set of line icons and the script wordmark, which ships as a static image asset rather than live Quicksand text.</p>
+    <div class="swatch-grid">
+      <div class="demo-box"><img src="assets/illustrations/Slumbering_title.png" alt="Slumbering wordmark" style="width:180px;aspect-ratio:370/95;object-fit:cover;object-position:center;filter:brightness(0);opacity:.85"><span class="demo-label">Wordmark (image asset)</span></div>
+      <div class="demo-box"><img src="assets/illustrations/luna-moon-mascot.svg" alt="Luna moon mascot" style="width:56px"><span class="demo-label">MoonMascot ("Luna")</span></div>
+      <div class="demo-box"><img src="assets/illustrations/icon-bedtime-crescent.svg" alt="Bedtime crescent" style="width:40px"><span class="demo-label">BedtimeCrescentIcon</span></div>
+      <div class="demo-box"><img src="assets/illustrations/icon-wakeup-sun.svg" alt="Wake-up sun" style="width:40px"><span class="demo-label">WakeupSunIcon</span></div>
+      <div class="demo-box"><img src="assets/illustrations/cloud-sheep.svg" alt="Cloud sheep" style="width:64px"><span class="demo-label">CloudSheep</span></div>
+      <div class="demo-box"><img src="assets/illustrations/icon-settings-gear.svg" alt="Settings gear" style="width:28px"><span class="demo-label">Settings gear (Home top bar)</span></div>
+      <div class="demo-box"><span class="demo-label">Not pictured</span><span class="m-body">Progress ring, line/bar charts, dot-journey graph, badge medallions — drawn dynamically from data (CSS conic-gradient / inline SVG), documented above.</span></div>
+    </div>
+  </div>
+
+  <footer class="catalog-footer">Source: <code>src/components/*.tsx</code>. Visual token values from <code>tokens.html</code>.</footer>
+</main>
+</body>
+</html>

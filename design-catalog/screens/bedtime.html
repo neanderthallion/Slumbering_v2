@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bedtime — Slumbering Design Catalog</title>
+<link rel="stylesheet" href="../assets/catalog.css">
+</head>
+<body>
+
+<nav class="sidebar">
+  <a class="sidebar-brand" href="../index.html"><img src="../assets/illustrations/Slumbering_title.png" alt="Slumbering"></a>
+  <div class="sidebar-group"><h3>Overview</h3><ul><li><a href="../index.html">Catalog home</a></li></ul></div>
+  <div class="sidebar-group">
+    <h3>Screens</h3>
+    <ul>
+      <li><a href="onboarding.html">Onboarding</a></li>
+      <li><a href="home.html">Home</a></li>
+      <li><a href="goal-picker.html">Goal Picker</a></li>
+      <li><a href="tonight-confirmation.html">Tonight Confirmation</a></li>
+      <li><a href="check-in.html">Check-In</a></li>
+      <li><a href="journey.html">Journey</a></li>
+      <li><a href="add-past-record.html">Add Past Record (modal)</a></li>
+      <li><a href="bedtime.html" class="active">Bedtime</a></li>
+      <li><a href="settings.html">Settings</a></li>
+      <li><a href="sleep-science.html">Sleep Science</a></li>
+    </ul>
+  </div>
+  <div class="sidebar-group"><h3>Reference</h3><ul><li><a href="../popups.html">Popups &amp; dialogs</a></li><li><a href="../components.html">Components</a></li><li><a href="../tokens.html">Design tokens</a></li></ul></div>
+</nav>
+
+<main class="main">
+  <div class="page-header">
+    <p class="eyebrow">Screen · Route "Bedtime"</p>
+    <h1 class="page-title">Bedtime</h1>
+    <p class="page-lede"><code>src/screens/Bedtime/BedtimeScreen.tsx</code> — read-only analytics: week/month bedtime, wake-time, and duration series, a regularity proxy, and one personalized recommendation. Reached by tapping the Home Bedtime Schedule panel.</p>
+    <div class="chip-row">
+      <span class="chip">Pushed screen</span>
+      <span class="chip">Back row → <strong>Home</strong></span>
+      <span class="chip">Display-only — never touches phone-level settings or schedules anything</span>
+    </div>
+  </div>
+
+  <div class="screen-layout">
+    <div class="mockup-col">
+      <div class="mockup-label">
+        <span>Preview</span>
+        <button class="theme-toggle" onclick="toggleMockupTheme(this)">Preview: light</button>
+      </div>
+
+      <div class="phone-frame" data-theme="dark">
+        <div class="phone-screen">
+          <div class="status-bar"><span>9:33</span><span>●●●</span></div>
+          <div class="screen-pad">
+            <p style="font:var(--text-body-lg);font-weight:700;color:var(--text-secondary);margin:10px 0 22px">&lsaquo; Home</p>
+            <h2 style="font:var(--text-display-sm);font-family:var(--font-display);margin:0 0 var(--space-4)">Bedtime</h2>
+
+            <div class="m-tabs split" style="margin-bottom:var(--space-4)">
+              <button class="m-tab active" onclick="btSwitch(0,this)">Week</button>
+              <button class="m-tab" onclick="btSwitch(1,this)">Month</button>
+            </div>
+
+            <div class="m-card">
+              <div class="m-between"><span class="m-eyebrow" style="margin:0">Bedtime</span><span style="font:var(--text-body-sm);font-weight:700;color:var(--accent-gold)">High Regularity</span></div>
+              <div class="m-linechart">
+                <svg viewBox="0 0 300 140" preserveAspectRatio="none">
+                  <line class="target" x1="0" y1="100" x2="300" y2="100"/>
+                  <polyline class="series bedtime" points="90,100 170,40 250,100"/>
+                  <circle class="node bedtime" cx="90" cy="100" r="5"/>
+                  <circle class="node bedtime" cx="170" cy="40" r="5"/>
+                  <circle class="node bedtime" cx="250" cy="100" r="5"/>
+                </svg>
+              </div>
+              <div class="m-between"><span class="m-body">Target 11:00 PM</span><span style="font:var(--text-body-sm);font-weight:700;color:var(--text-primary)">Average 11:10 PM</span></div>
+            </div>
+
+            <div class="m-card">
+              <div class="m-between"><span class="m-eyebrow" style="margin:0">Wakeup</span><span style="font:var(--text-body-sm);font-weight:700;color:var(--accent-gold)">High Regularity</span></div>
+              <div class="m-linechart">
+                <svg viewBox="0 0 300 140" preserveAspectRatio="none">
+                  <line class="target" x1="0" y1="100" x2="300" y2="100"/>
+                  <polyline class="series wakeup" points="90,100 170,40 250,100"/>
+                  <circle class="node wakeup" cx="90" cy="100" r="5"/>
+                  <circle class="node wakeup" cx="170" cy="40" r="5"/>
+                  <circle class="node wakeup" cx="250" cy="100" r="5"/>
+                </svg>
+              </div>
+              <div class="m-between"><span class="m-body">Target 5:30 AM</span><span style="font:var(--text-body-sm);font-weight:700;color:var(--text-primary)">Average 5:40 AM</span></div>
+            </div>
+
+            <div class="m-card">
+              <p class="m-eyebrow">Duration</p>
+              <div class="m-barchart">
+                <div class="bar" style="height:0;background:transparent"></div>
+                <div class="bar" style="height:0;background:transparent"></div>
+                <div class="bar" style="height:0;background:transparent"></div>
+                <div class="bar" style="height:0;background:transparent"></div>
+                <div class="bar" style="height:78%"></div>
+                <div class="bar" style="height:78%"></div>
+                <div class="bar" style="height:78%"></div>
+              </div>
+              <div class="m-between"><span class="m-body">Target 6h 30m</span><span style="font:var(--text-body-sm);font-weight:700;color:var(--text-primary)">Average 6h 30m</span></div>
+            </div>
+
+            <div class="m-card">
+              <p class="m-eyebrow" style="color:var(--accent-gold)">Duration</p>
+              <p class="m-body" style="color:var(--text-primary)" id="bt-tip">Getting enough sleep (8–10 hours a day) can help you feel more focused, energized, and ready for the day.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notes-col">
+      <div class="notes-section">
+        <h2>Purpose</h2>
+        <p>The dedicated analytics page for bedtime consistency — week/month series for bedtime, wake time, and duration, each with a regularity proxy, plus a single highest-priority personalized tip.</p>
+      </div>
+      <div class="notes-section">
+        <h2>Data &amp; state</h2>
+        <ul>
+          <li>Series are built from <code>recordsStore</code> (<code>features/bedtime/logic/series.ts</code>), gated the same as everywhere else — a night only counts once <code>checkInCompletedAt</code> is set and <code>sleepConfirmation</code> is non-null.</li>
+          <li>Bedtimes wrap past midnight — <code>lib/dateMath.ts</code>'s <code>normalizeBedtimeMinutes</code>/<code>normalizedMinutesToTime</code> shift any pre-noon clock time into "the next day" before averaging/variance, so a 12:30 AM bedtime doesn't skew the average toward noon.</li>
+          <li>Regularity (<code>features/bedtime/logic/regularity.ts</code>) is a population-SD proxy, bucketed: High (≤30 min) / Moderate (30–60 min) / Irregular (60–90 min) / Severely Irregular (≥90 min). There's no true Sleep Regularity Index without continuous epoch data.</li>
+          <li>The recommendation (<code>recommendations.ts</code>) is a single date-seeded tip chosen by priority: short average duration (&lt;8h) &gt; irregular bedtime/wake timing &gt; late average bedtime vs. target &gt; late average wake time vs. target &gt; general tips fallback. Never more than one shown at a time.</li>
+        </ul>
+      </div>
+      <div class="notes-section">
+        <h2>Conditional states</h2>
+        <p>Week/Month toggle re-scopes all three series and the regularity/recommendation calculations together — switching period never mixes data from the other window.</p>
+      </div>
+      <div class="notes-section">
+        <h2>User actions &amp; navigation</h2>
+        <ul>
+          <li>Back row → <a class="nav-link" href="home.html">Home</a></li>
+          <li>Reached by tapping the Home <a class="nav-link" href="home.html">Bedtime Schedule panel</a> outside its two inline time fields (which edit bedtime/wake in place instead)</li>
+        </ul>
+      </div>
+      <div class="notes-section">
+        <h2>Components used</h2>
+        <p><a class="nav-link" href="../components.html#card">Card</a>, <a class="nav-link" href="../components.html#tabs">Tabs</a>, <a class="nav-link" href="../components.html#linechart">Line chart</a>, <a class="nav-link" href="../components.html#barchart">Bar chart</a>.</p>
+      </div>
+    </div>
+  </div>
+</main>
+<script src="../assets/catalog.js"></script>
+<script>
+  var btTips = [
+    'Getting enough sleep (8–10 hours a day) can help you feel more focused, energized, and ready for the day.',
+    'Sticking to a regular pre-sleep routine can make a meaningful difference.'
+  ];
+  function btSwitch(i, btn) {
+    btn.parentElement.querySelectorAll('.m-tab').forEach(function (b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('bt-tip').textContent = btTips[i];
+  }
+</script>
+</body>
+</html>

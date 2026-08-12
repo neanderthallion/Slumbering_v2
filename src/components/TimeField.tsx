@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useTheme } from '../theme/ThemeContext';
-import { formatTime12h, parseTypedTime } from '../utils/date';
+import { useTheme } from '../theme/ThemeProvider';
+import { formatTime12h } from '../lib/dateMath';
 import { TimePickerPanel } from './TimePickerPanel';
 
 interface Props {
@@ -10,26 +10,20 @@ interface Props {
   time: string; // 'HH:mm'
   onChange: (time: string) => void;
   emoji?: string;
+  labelColor?: string;
+  valueColor?: string;
+  iconColor?: string;
 }
 
-export function TimeField({ label, time, onChange, emoji }: Props) {
+/** Tapping either the time value or the clock icon opens the native TimePickerPanel -- there is no manual/typed time entry. */
+export function TimeField({ label, time, onChange, emoji, labelColor, valueColor, iconColor }: Props) {
   const { theme } = useTheme();
   const [pickerOpen, setPickerOpen] = useState(false);
-  const [editingText, setEditingText] = useState(false);
-  const [draft, setDraft] = useState('');
 
-  function startEditingText() {
-    setDraft(formatTime12h(time));
-    setEditingText(true);
-  }
-
-  function commitDraft() {
-    setEditingText(false);
-    const parsed = parseTypedTime(draft, time);
-    if (parsed) onChange(parsed);
-  }
-
-  const valueTextStyle = { fontFamily: theme.fonts.bodyMedium, fontSize: 19, color: theme.colors.accent };
+  const resolvedValueColor = valueColor ?? theme.colors.accent;
+  const resolvedLabelColor = labelColor ?? theme.colors.textLow;
+  const resolvedIconColor = iconColor ?? theme.colors.textLow;
+  const valueTextStyle = { fontFamily: theme.fonts.bodyMedium, fontSize: 19, color: resolvedValueColor };
 
   return (
     <View style={styles.box}>
@@ -39,7 +33,7 @@ export function TimeField({ label, time, onChange, emoji }: Props) {
           fontSize: 10.5,
           letterSpacing: 0.6,
           textTransform: 'uppercase',
-          color: theme.colors.textLow,
+          color: resolvedLabelColor,
           marginBottom: 6,
         }}
       >
@@ -47,34 +41,19 @@ export function TimeField({ label, time, onChange, emoji }: Props) {
         {label}
       </Text>
       <View style={styles.valueRow}>
-        {editingText ? (
-          <TextInput
-            value={draft}
-            onChangeText={(t) => setDraft(t.replace(/[^0-9apmAPM]/g, ''))}
-            onSubmitEditing={commitDraft}
-            onBlur={commitDraft}
-            autoFocus
-            selectTextOnFocus
-            style={[valueTextStyle, styles.textInput, { borderColor: theme.colors.accent }]}
-          />
-        ) : (
-          <Pressable onPress={startEditingText}>
-            <Text style={valueTextStyle}>{formatTime12h(time)}</Text>
-          </Pressable>
-        )}
+        <Pressable onPress={() => setPickerOpen(true)}>
+          <Text style={valueTextStyle}>{formatTime12h(time)}</Text>
+        </Pressable>
         <Pressable onPress={() => setPickerOpen(true)} hitSlop={8}>
-          <Ionicons name="time-outline" size={17} color={theme.colors.textLow} />
+          <Ionicons name="time-outline" size={17} color={resolvedIconColor} />
         </Pressable>
       </View>
-      {pickerOpen && (
-        <TimePickerPanel time={time} onChange={onChange} onRequestClose={() => setPickerOpen(false)} />
-      )}
+      {pickerOpen && <TimePickerPanel time={time} onChange={onChange} onRequestClose={() => setPickerOpen(false)} />}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  box: { flex: 1 },
+  box: {},
   valueRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  textInput: { borderWidth: 1, borderRadius: 6, paddingVertical: 0, paddingHorizontal: 4, minWidth: 78 },
 });

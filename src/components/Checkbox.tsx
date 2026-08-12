@@ -1,7 +1,7 @@
 import React from 'react';
-import { Pressable, View, StyleSheet } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
-import { useTheme } from '../theme/ThemeContext';
+import { useTheme } from '../theme/ThemeProvider';
 
 interface Props {
   checked: boolean;
@@ -26,7 +26,7 @@ export function Checkbox({ checked, onPress, disabled }: Props) {
     >
       {checked && (
         <Svg width={12} height={12} viewBox="0 0 24 24" fill="none">
-          <Path d="M20 6L9 17l-5-5" stroke="#fff" strokeWidth={3.5} strokeLinecap="round" strokeLinejoin="round" />
+          <Path d="M20 6L9 17l-5-5" stroke={theme.colors.accentContrastText} strokeWidth={3.5} strokeLinecap="round" strokeLinejoin="round" />
         </Svg>
       )}
     </Pressable>
