@@ -1,0 +1,375 @@
+SLUMBERING — TỔNG QUAN TÍNH NĂNG & CƠ CHẾ KỸ THUẬT
+=====================================================
+Ứng dụng Expo chỉ dành cho Android. Tài liệu này tóm tắt ứng dụng làm GÌ và
+được tính toán/lưu trữ NHƯ THẾ NÀO, không đề cập đến bố cục màn hình hay nội
+dung văn bản (copy).
+
+---------------------------------------------------------------------------
+1. NGĂN CÔNG NGHỆ (TECH STACK)
+---------------------------------------------------------------------------
+- Expo SDK 57 (managed workflow), mục tiêu build Android, expo-dev-client
+- React 19.2.3 / React Native 0.86.2, TypeScript strict mode
+- Điều hướng (Navigation): @react-navigation/native-stack, một stack duy
+  nhất, headerShown:false
+- Quản lý state: Zustand 5 + persist middleware, được lưu trữ nền bằng
+  AsyncStorage
+- Schema/kiểm tra dữ liệu (validation): Zod 4 (nguồn chân lý duy nhất -
+  single source of truth - cho types + kiểm tra khi runtime, được export
+  lại vào types/domain.ts)
+- Thông báo (Notifications): expo-notifications (lên lịch thật ở cấp hệ
+  điều hành, không chỉ là lưu tuỳ chọn)
+- Sao lưu (Backup): expo-file-system + expo-sharing (xuất dữ liệu),
+  expo-document-picker (nhập dữ liệu)
+- Kiểm thử (Testing): Jest + @testing-library/react-native; mỗi file
+  features/*/logic đều có một file *.test.ts đi kèm cùng thư mục
+- Không có backend, không có network client, không dùng Redux/MobX/React
+  Query
+
+---------------------------------------------------------------------------
+2. MÔ HÌNH DỮ LIỆU (DATA MODEL) (do Zod quản lý, lib/schemas.ts ->
+   types/domain.ts)
+---------------------------------------------------------------------------
+Hai store Zustand được lưu trữ bền vững (persisted), có đánh số phiên bản
+(v1):
+
+settingsStore:
+  hasOnboarded: boolean
+  profile.displayName: string
+  theme: 'light' | 'dark'
+  textSize: 'small' | 'medium' | 'large'
+  bedtime / wakeTime: "HH:mm"
+  reminders: { setGoals:{enabled,time}, checkIn:{enabled,time},
+               windDown:{enabled} (thời gian luôn được suy ra tự động,
+               không bao giờ lưu trữ) }
+  suggestedGoals: { bedtime[], windDown[], relaxation[] } (danh sách khởi
+    tạo có thể chỉnh sửa theo từng người dùng, DEFAULT_SUGGESTED_GOALS chỉ
+    được dùng khi cài đặt lần đầu)
+  celebratedAchievementIds: string[] (kiểm soát những unlock nào đã hiển
+    thị modal ăn mừng của nó)
+
+recordsStore:
+  records: Record<"yyyy-mm-dd", NightRecord>
+  NightRecord = {
+    date, goals: NightGoal[] (mỗi goal tự mang theo giá trị
+      achieved:boolean|null riêng),
+    goalsSetAt, checkInCompletedAt (dấu thời gian ISO hoặc null),
+    source: 'normal' | 'backfilled',
+    plannedBedtime / plannedWakeTime: "HH:mm"|null (được chụp nhanh -
+      snapshot - từ settings tại thời điểm đặt mục tiêu),
+    sleepConfirmation: 'asPlanned' | 'reportedDifferent' | null,
+    actualBedtime / actualWakeTime: "HH:mm"|null (chỉ được gán giá trị khi
+      sleepConfirmation === 'reportedDifferent')
+  }
+
+Cả hai store đều dùng các hàm `merge`/`migrate` tuỳ chỉnh để kiểm tra lại
+(re-validate) dữ liệu đã lưu (persisted blob) qua schema Zod mỗi lần
+rehydrate; một blob bị hỏng hoặc thiếu sẽ rơi về giá trị mặc định/rỗng thay
+vì lan (spread) dữ liệu không hợp lệ vào state đang hoạt động. Cờ
+`hasHydrated` kiểm soát logic hiển thị lần đầu (first-paint).
+
+Di trú dữ liệu cũ (Legacy migration) (store/migrateLegacyStorage.ts): việc
+chuyển đổi một lần, mang tính idempotent (được bảo vệ bởi cờ AsyncStorage
+`migrationDone`) từ định dạng lưu trữ JSON thô trước khi rebuild sang các
+store mới có kiểm tra qua schema. Khi di trú, nó gán lùi ngày (backdate)
+`celebratedAchievementIds` cho mọi unlock hiện đang đúng (true), để người
+dùng đã có từ trước không bị dội một loạt modal ăn mừng cho các
+badge/milestone mà họ đã "đạt được" trong quá khứ.
+
+---------------------------------------------------------------------------
+3. LUỒNG MỤC TIÊU & CHECK-IN (GOALS & CHECK-IN FLOW)
+---------------------------------------------------------------------------
+- Các danh mục mục tiêu (goal categories): bedtime | windDown | relaxation
+  | custom.
+- `looksLikeUnhealthyBedtime(category, text)` (features/goals/logic): dùng
+  regex để gắn cờ cảnh báo khi nội dung mục tiêu bedtime/custom có nhắc
+  đến một mốc giờ nằm trong khoảng 12:00am–4:59am (regex
+  negative-lookbehind giúp tránh đọc nhầm phần phút thành giờ). Không chặn
+  (non-blocking) — chỉ trả về một chuỗi cảnh báo, người dùng vẫn có thể
+  lưu.
+- Chỉnh sửa ngân hàng gợi ý (suggestion bank): việc đổi tên một mục tiêu
+  gợi ý sẽ ghi ngược lại vào chính `settings.suggestedGoals` (mang tính
+  toàn cục, được lưu bền vững qua các phiên). Việc đổi tên mục tiêu trong
+  AddPastRecord là một ngoại lệ có chủ đích — chỉ là bản sao cục bộ
+  (local-only), không bao giờ đụng đến `suggestedGoals`.
+- Cổng check-in (Check-in gate) (`features/checkin/logic/checkInGate.ts`):
+  `initialSleepStep(hasPlannedSchedule, existingConfirmation)` → trả về
+  'ask' chỉ khi có lịch trình đã lên kế hoạch (planned schedule) và chưa
+  ghi nhận xác nhận nào, nếu không thì bỏ qua thẳng đến 'done' (bước xác
+  nhận mục tiêu).
+- Phân loại độ lệch (Delta classification) (`deltaClassification.ts`):
+  - Hằng số dung sai (tolerance): SLEEP_TIME_TOLERANCE_MINUTES = 15.
+  - `classifySleepSchedule(plannedBedtime, plannedWakeTime, actualBedtime,
+    actualWakeTime)` so sánh độ lệch giờ đồng hồ (clock-time deviation,
+    không chỉ là thời lượng) thông qua `signedMinutesDelta` (an toàn khi
+    vòng qua nửa đêm - wrap-safe, phạm vi (-720,720]). Nếu nằm trong dung
+    sai ở cả hai đầu → 'onPlan'. Ngược lại được phân loại theo độ lệch
+    *thời lượng* (duration delta) (độ lệch giờ dậy trừ độ lệch giờ ngủ);
+    nếu thời lượng không đổi nhưng cả lịch trình bị dịch chuyển (ví dụ cả
+    hai mốc giờ đều +2h), giờ đi ngủ muộn hơn sẽ được xem là
+    "shorterThanPlanned" (hướng xấu hơn, nhất quán với cách đóng khung "đi
+    ngủ sớm hơn là tốt").
+  - Văn bản phản hồi được chọn theo ngày (date-seeded) cho từng nhóm so
+    sánh (comparison bucket) thông qua `pickFromPool`.
+- Bổ sung dữ liệu quá khứ (Backfill) qua AddPastRecord: có cùng cấu trúc
+  NightRecord, `source:'backfilled'`, bị loại khỏi các phép tính
+  streak/steadyRhythm (xem bên dưới).
+
+---------------------------------------------------------------------------
+4. CHUỖI NGÀY LIÊN TỤC & CỘT MỐC (STREAKS & MILESTONES)
+   (features/journey/logic)
+---------------------------------------------------------------------------
+- `computeStreak(records)`: đếm số ngày liên tục đạt đầy đủ mục tiêu
+  (fully-achieved, tất cả goal đều true), đã check-in, không phải
+  backfilled, tính ngược từ hôm nay; nếu hôm nay chưa check-in thì việc
+  đếm bắt đầu từ hôm qua, để một ngày "hôm nay" còn đang mở không làm gãy
+  streak hiện có. Bất kỳ khoảng trống lịch (calendar gap), đêm đạt một
+  phần (partial night), hay đêm backfilled nào cũng sẽ làm gãy streak.
+- `computeLongestStreak` / `longestStreakInRecords`: chuỗi ngày liên tục
+  đạt đầy đủ mục tiêu dài nhất từ trước đến nay (all-time) (không tính các
+  đêm backfilled).
+- Hai bộ đếm cộng dồn RIÊNG BIỆT (không bao giờ bị gộp lẫn):
+  - Cột mốc lớn (Major milestones) (số đêm đạt đầy đủ mục tiêu, tính từ
+    trước đến nay, không cần liên tục): [5, 10, 30, 50, 100, 365] — chỉ
+    dùng cho companion-message/Journey-timeline, KHÔNG thuộc hệ thống ăn
+    mừng/huy hiệu (celebration/badge).
+  - Cột mốc gắn kết (Engagement milestones) (số đêm đạt ít nhất một mục
+    tiêu, tính từ trước đến nay, không cần liên tục): cố định
+    [1,5,10,20,30,40,50], sau đó cứ mỗi 50
+    (`isEngagementMilestoneThreshold`) — CÓ thuộc hệ thống ăn mừng.
+- Các dải streak (streak bands) dùng cho tin nhắn đồng hành (companion
+  messaging): 3–6 / 7–29 / 30+.
+
+---------------------------------------------------------------------------
+5. THÀNH TÍCH / HUY HIỆU (ACHIEVEMENTS / BADGES) (features/achievements)
+---------------------------------------------------------------------------
+7 huy hiệu (badge) cố định, được định nghĩa một lần trong badges.ts, mỗi
+huy hiệu được đánh giá như một ngày unlock thuần tuý, chỉ xảy ra một lần
+duy nhất, được tính từ toàn bộ lịch sử bản ghi (`computeBadgeUnlocks`):
+
+  firstStep     — ngày của bản ghi check-in đầu tiên.
+  fullWeek      — ngày đầu tiên xuất hiện một chuỗi 7 đêm liên tục theo
+                  lịch (calendar-consecutive) đã check-in, mỗi đêm đạt ≥1
+                  mục tiêu (KHÔNG cần đạt đầy đủ - not full achievement).
+  oneMonth      — cộng dồn đủ 30 đêm đã check-in, tính từ trước đến nay
+                  (không cần liên tục).
+  welcomeBack   — khoảng trống đầu tiên ≥5 ngày (WELCOME_BACK_GAP_DAYS)
+                  giữa hai bản ghi check-in liên tiếp. Đây là một ngưỡng
+                  KHÁC có chủ đích so với mốc 3 ngày "returning" của tin
+                  nhắn đồng hành — một sự ăn mừng chỉ xảy ra một lần, khác
+                  với một pool tin nhắn hằng ngày.
+  goGetter      — cộng dồn đủ 50 mục tiêu đã đạt được, tính từ trước đến
+                  nay, tổng chạy liên tục (running total).
+  fullNight     — 10 đêm (không cần liên tục) có thời lượng ngủ được tính
+                  ra (journey/logic/duration.ts `sleepDurationMinutes`)
+                  ≥420 phút (7 giờ).
+  steadyRhythm  — chuỗi 14 đêm liên tục theo lịch đầu tiên (chỉ tính đêm
+                  non-backfilled) mà giờ đi ngủ TẤT CẢ đều nằm trong
+                  khoảng ±30 phút so với giờ đi ngủ trung bình trượt
+                  (rolling average) của chính khung 14 đêm đó (được chuẩn
+                  hoá qua `normalizeBedtimeMinutes` để các mốc giờ trước
+                  buổi trưa được vòng sang "ngày kế tiếp", giúp tính trung
+                  bình quanh nửa đêm chính xác).
+
+Kiểm soát hiển thị ăn mừng (Celebration gating) (`celebrationGating.ts`):
+- `computeCelebratableUnlocks` = chỉ gồm engagement milestones + badges
+  (các major milestone đạt đầy đủ mục tiêu bị loại khỏi việc ăn mừng theo
+  thiết kế).
+- `detectNewlyUnlocked(records, celebratedIds, today)` lọc ra những unlock
+  có ngày đúng bằng hôm nay VÀ chưa có trong `celebratedAchievementIds` —
+  đây chính là cơ chế ngăn một loạt thành tích tồn đọng trong lịch sử bật
+  lên cùng lúc cho người dùng đã có từ trước. Bất kỳ unlock nào có ngày
+  trong quá khứ vẫn xuất hiện âm thầm trong Journey timeline.
+- `sleepDurationMinutes(record)`: lấy giờ ngủ/giờ dậy thực tế nếu
+  `sleepConfirmation==='reportedDifferent'`, nếu không thì lấy lịch trình
+  đã lên kế hoạch nếu là `'asPlanned'`, còn lại thì trả về null.
+
+---------------------------------------------------------------------------
+6. TIN NHẮN ĐỒNG HÀNH (COMPANION MESSAGES)
+   (features/companion-messages/logic/pickMessage.ts)
+---------------------------------------------------------------------------
+Một chuỗi ưu tiên nghiêm ngặt (strict priority chain) được đánh giá mỗi
+lần tải trang, mỗi nhánh lấy từ một pool được chọn theo ngày (date-seeded
+pool) (`lib/dateSeed.ts`, hash tất định của chuỗi seed lấy dư (mod) theo
+độ dài pool, có hỗ trợ `exclude` để tránh lặp lại dòng của hôm qua):
+  1. Người dùng lần đầu (chưa có bản ghi check-in nào)
+  2. Quay lại sau khoảng cách RETURNING_GAP_DAYS(=3)+ ngày kể từ lần
+     check-in gần nhất
+  3. Vừa đạt một major milestone ngay hôm nay (số đêm đạt đầy đủ mục tiêu
+     nằm trong MAJOR_MILESTONES và đã check-in hôm nay)
+  4. Dải streak (streak band): 30+ / 7–29 / 3–6
+  5. Phương án dự phòng dựa trên trạng thái mục tiêu đêm trước — chỉ áp
+     dụng khi `dailyStage === 'noGoalsSet'` (tức đã check-in xong, nhưng
+     mục tiêu tối nay chưa được đặt): các pool all-achieved / partial /
+     none
+  6. Pool động viên mặc định (default encouragement pool)
+`computeGreeting` là một hàm liên quan, đơn giản hơn: lần đầu → "Welcome",
+khoảng cách 3+ ngày → "Welcome back", còn lại là lời chào theo thời điểm
+trong ngày (sáng/chiều/tối qua `getGreetingPeriod`, cắt mốc ở 12:00/18:00).
+`computeTodaysActionState` chọn giữa newUser / beforeGoals /
+afterGoalsSameDay / beforeCheckInNextDay cho một pool nội dung "hành động
+hôm nay" (today's action) được chọn theo ngày riêng biệt.
+
+---------------------------------------------------------------------------
+7. TRANG PHÂN TÍCH GIỜ NGỦ (BEDTIME ANALYTICS PAGE) (features/bedtime/logic)
+---------------------------------------------------------------------------
+- series.ts xây dựng các chuỗi (series) giờ ngủ, giờ dậy và thời lượng ngủ
+  theo tuần/tháng từ recordsStore, được kiểm soát (gate) giống hệt nhau ở
+  mọi nơi: một đêm chỉ được tính khi `checkInCompletedAt` đã được gán giá
+  trị và `sleepConfirmation` khác null.
+- Các phép tính giờ ngủ luôn đi qua `normalizeBedtimeMinutes` /
+  `normalizedMinutesToTime` (lib/dateMath.ts) — bất kỳ mốc giờ nào trước
+  buổi trưa đều được dịch +24h trước khi tính trung bình/phương sai, để ví
+  dụ 23:30 và 00:15 được xem là cách nhau 45 phút thay vì ~23 giờ.
+- Độ đều đặn (Regularity) (`regularity.ts`): độ lệch chuẩn tổng thể
+  (population standard deviation) của số phút trong một chuỗi (bedtime
+  hoặc wake), chia vào các nhóm:
+    High Regularity (Rất đều)            ≤ 30 phút SD
+    Moderate Regularity (Khá đều)         30–60 phút SD
+    Irregular (Không đều)                 60–90 phút SD
+    Severely Irregular (Rất không đều)   ≥ 90 phút SD
+  Đây rõ ràng chỉ là một chỉ số đại diện (proxy) cho một Sleep Regularity
+  Index thực thụ (không thu thập dữ liệu epoch liên tục). Kết quả là null
+  khi có ít hơn 2 đêm đã xác nhận.
+- Gợi ý cá nhân hoá (Personalized recommendation) (`recommendations.ts`):
+  một mẹo (tip) duy nhất được chọn theo ngày (date-seeded), lựa theo thứ
+  tự ưu tiên, không bao giờ hiển thị nhiều hơn một mẹo cùng lúc:
+    1. thời lượng ngủ trung bình < 8 giờ (RECOMMENDED_DURATION_MINUTES)
+    2. độ đều đặn giờ ngủ HOẶC giờ dậy ở mức Irregular/Severely Irregular
+    3. giờ ngủ trung bình muộn hơn giờ ngủ mục tiêu quá 30 phút
+       (LATE_THRESHOLD_MINUTES, tính theo phút đã chuẩn hoá)
+    4. giờ dậy trung bình muộn hơn giờ dậy mục tiêu quá 30 phút
+    5. phương án dự phòng: mẹo chung
+  Nội dung của mỗi nhóm được chọn qua `pickWithinCategory`, hàm này lấy
+  lựa chọn hôm nay dựa trên seed, loại trừ lựa chọn của hôm qua (để không
+  lặp lại ngay lập tức).
+- Cảnh báo thay đổi lịch trình (Schedule-change warning)
+  (`scheduleWarnings.ts`, dùng khi chỉnh sửa giờ ngủ/giờ dậy trên bảng
+  điều khiển lịch trình (schedule panel) của Home):
+    isLateBedtime: giờ đi ngủ < 5 giờ sáng (00:00–04:59)
+    isShortSleepDuration: khung thời gian ngủ tính được < 6 giờ
+    (SHORT_SLEEP_MAX_MINUTES)
+  Tạo ra một chuỗi cảnh báo kết hợp/riêng lẻ; null nghĩa là không có cảnh
+  báo và bên gọi (caller) áp dụng thay đổi trực tiếp. Không chặn
+  (non-blocking), theo cùng triết lý "không bao giờ ngăn việc lưu" như
+  `looksLikeUnhealthyBedtime`.
+
+---------------------------------------------------------------------------
+8. DANH MỤC MỤC TIÊU MẠNH NHẤT (STRONGEST GOAL CATEGORY)
+   (features/journey/logic/strongestCategory.ts)
+---------------------------------------------------------------------------
+Tỷ lệ đạt/tổng số được tính theo từng danh mục
+(bedtime/windDown/relaxation/custom) trên một tập bản ghi; danh mục có tỷ
+lệ cao nhất sẽ thắng; trường hợp bằng nhau được giải quyết theo thứ tự ưu
+tiên cố định bedtime > windDown > relaxation > custom; trả về null nếu
+không có mục tiêu nào trong khoảng đó. Được hiển thị trên JourneyPreviewCard
+của Home, giới hạn trong 7 ngày gần nhất thông qua hàm
+`recordsInLastSevenDays` của `journeyEntries.ts`.
+
+---------------------------------------------------------------------------
+9. THÔNG BÁO (NOTIFICATIONS) (features/notifications) — lên lịch thật ở
+   cấp hệ điều hành
+---------------------------------------------------------------------------
+- permissions.ts: `ensureNotificationPermission()` (yêu cầu quyền nếu
+  chưa được cấp) so với `hasNotificationPermission()` (chỉ kiểm tra,
+  không bao giờ hiện hộp thoại yêu cầu).
+- handlers.ts: `registerNotificationHandler()`, được gọi một lần duy nhất
+  ở phạm vi module (module scope) trong App.tsx.
+- scheduler.ts: `scheduleDailyReminder()` / `cancelReminder()`, được đánh
+  khoá (keyed) bằng một định danh CỐ ĐỊNH cho mỗi loại nhắc nhở
+  (REMINDER_IDS: reminder-setGoals, reminder-checkIn, reminder-windDown)
+  thay vì dùng một OS notification id được lưu/trả về — việc lên lịch lại
+  = huỷ theo id rồi lên lịch lại cùng id đó. Không có trường
+  `notificationId` nào được lưu bền vững trong state của reminder (vì đây
+  là dữ liệu cục bộ trên thiết bị - device-local, nếu lưu sẽ bị rò rỉ vào
+  file xuất/nhập backup JSON).
+- sync.ts: `syncReminderSchedules(settings)` đồng bộ (reconcile) cả 3
+  nhắc nhở song song (Promise.all) — lên lịch nếu đang bật, huỷ nếu đang
+  tắt. Mỗi nhắc nhở tự đồng bộ độc lập và tự nuốt (swallow) lỗi của riêng
+  nó (theo tinh thần best-effort; một lỗi lên lịch không được làm sập ứng
+  dụng). Nhắc nhở wind-down không lưu giờ cố định — nó được suy ra mỗi lần
+  đồng bộ thông qua hàm `computeWindDownTime(bedtime, offsetMinutes=10)`
+  của `preferences.ts`, hàm này trừ 10 phút từ giờ đi ngủ, có xử lý vòng
+  qua nửa đêm.
+- Đấu nối (Wiring): AppShell chạy `syncReminderSchedules` trong một
+  useEffect theo dõi `reminders`/`bedtime`, nhưng CHỈ khi quyền đã được
+  cấp (bản thân nó không bao giờ tự hiện hộp thoại yêu cầu quyền). Hộp
+  thoại yêu cầu quyền thực sự xuất phát từ onValueChange của toggle trong
+  RemindersSection (một hành động của người dùng - user gesture); nếu bị
+  từ chối, toggle sẽ trở về trạng thái cũ kèm theo một toast.
+- app.json khai báo config plugin của expo-notifications.
+
+---------------------------------------------------------------------------
+10. SAO LƯU / KHÔI PHỤC (BACKUP / RESTORE) (features/backup/logic)
+---------------------------------------------------------------------------
+- Xuất dữ liệu (Export) (`exportBackup.ts`): tuần tự hoá (serialize)
+  `{ exportedAt, settings, records }` thành JSON, ghi vào một file cache
+  (expo-file-system `File`/`Paths`), chia sẻ qua share sheet của hệ điều
+  hành (`expo-sharing`). Tên file: slumbering-backup-<yyyy-mm-dd>.json.
+- Nhập dữ liệu (Import) (`importBackup.ts`): `expo-document-picker` bị
+  giới hạn chỉ nhận application/json → JSON.parse (thất bại →
+  'invalidJson') → được kiểm tra theo `BackupPayloadSchema` (Zod; thất
+  bại → 'invalidShape') → trả về payload đã có kiểu (typed) khi thành
+  công. `confirmDestructiveImport()` là một wrapper Alert gốc (native),
+  độc lập, có thể mock, trả về một boolean đã resolve; việc nhập chỉ tiếp
+  tục khi có xác nhận rõ ràng, và sẽ ghi đè hoàn toàn cả hai store (không
+  áp dụng một phần/gộp - no partial/merge apply) — từ chối khi không khớp
+  (reject-on-mismatch), không bao giờ áp dụng một phần.
+
+---------------------------------------------------------------------------
+11. TÍNH TẤT ĐỊNH THEO NGÀY (DATE-SEEDED DETERMINISM) (lib/dateSeed.ts)
+---------------------------------------------------------------------------
+`hashString(seed)`: một rolling hash đơn giản (hash*31 + charCode, số
+nguyên không dấu 32-bit). `pickFromPool(pool, seed, exclude?)`: chỉ số
+tất định (deterministic index) = hash(seed) % pool.length, với `exclude`
+được lọc ra trước (khi pool có >1 phần tử) để các lượt chọn ở những ngày
+liên tiếp từ cùng một pool không bị lặp lại. Được dùng ở mọi nơi cần nội
+dung thay đổi theo ngày nhưng vẫn ổn định trong cùng một ngày và có thể
+unit-test được (cùng ngày + cùng state → cùng kết quả đầu ra, được khẳng
+định (assert) trong các bài test).
+
+---------------------------------------------------------------------------
+12. CÁC HÀM TÍNH TOÁN NGÀY/GIỜ CƠ BẢN (DATE/TIME MATH PRIMITIVES)
+    (lib/dateMath.ts)
+---------------------------------------------------------------------------
+- toDateKey / todayKey / addDays / daysBetween — tất cả đều thao tác trên
+  các khoá chuỗi "yyyy-mm-dd"; daysBetween dùng phép tính epoch-day theo
+  UTC để tránh sai lệch do DST (giờ mùa hè).
+- parseTimeToMinutes / formatTime12h — chuyển đổi qua lại giữa "HH:mm" và
+  số phút tính từ nửa đêm (minutes-since-midnight).
+- minutesBetween(start,end): vòng qua nửa đêm (nếu end<start thì được giả
+  định là ngày kế tiếp).
+- signedMinutesDelta(from,to): khoảng cách có dấu ngắn nhất trên một đồng
+  hồ 24 giờ, phạm vi (-720, 720].
+- normalizeBedtimeMinutes / normalizedMinutesToTime: dịch bất kỳ mốc giờ
+  nào trước buổi trưa +24h để các giờ đi ngủ trong một đêm tạo thành một
+  khoảng liên tục cho việc tính trung bình/phương sai; được dùng bởi
+  bedtime series, regularity, recommendations, và huy hiệu steadyRhythm.
+- getGreetingPeriod: buổi sáng <12:00, buổi chiều <18:00, còn lại là buổi
+  tối.
+- parseDDMMYY / toDDMMYY: phân tích (parse) trường nhập ngày thủ công
+  (AddPastRecord), năm 2 chữ số được giả định là 2000+yy, được kiểm tra
+  đối chiếu với số ngày thực tế trong tháng.
+
+---------------------------------------------------------------------------
+13. ĐIỀU HƯỚNG (NAVIGATION)
+---------------------------------------------------------------------------
+Một native-stack duy nhất, headerShown:false trên toàn ứng dụng. Các
+route: Home, GoalPicker({mode:'create'|'edit'}), TonightConfirmation
+({goals}), CheckIn, Journey, AddPastRecord({date?}) — màn hình duy nhất
+có `presentation:'modal'`, Settings, SleepScience, Bedtime. Onboarding
+không phải là một route — được kiểm soát bởi AppShell dựa trên
+`settings.hasOnboarded`, chỉ đi một chiều (hiện chưa có điểm quay lại).
+Hàng nút quay lại trong nội dung điều hướng về Home qua `navigate('Home')`
+ở mọi nơi, ngoại trừ SleepScience và AddPastRecord dùng `goBack()` (các
+màn hình chỉ có một điểm vào - single-entry-point).
+
+---------------------------------------------------------------------------
+14. CÁC THIẾU SÓT ĐÃ BIẾT / CHỦ ĐÍCH NẰM NGOÀI PHẠM VI
+    (KNOWN GAPS / INTENTIONALLY OUT OF SCOPE)
+---------------------------------------------------------------------------
+- Không có cách quay lại onboarding một khi đã hoàn tất.
+- Không có đồng bộ sao lưu trên cloud (Dropbox, v.v.)
+- Không có lớp i18n (một lớp song ngữ en/vi trước đây đã được xây dựng rồi
+  bị gỡ bỏ hoàn toàn; toàn bộ nội dung văn bản hiện là tiếng Anh viết cứng
+  (hardcoded) thuần tuý trong features/*/pools hoặc copy.ts cục bộ của
+  từng màn hình).
