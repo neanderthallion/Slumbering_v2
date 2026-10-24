@@ -1,0 +1,56 @@
+# .easignore -- files EAS Build should not upload.
+# When present, this file REPLACES .gitignore for EAS uploads, so the
+# .gitignore contents are copied in below, then EAS-only entries follow.
+
+# --- copied from .gitignore ---
+
+# dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+*.pem
+
+# local env files
+.env*.local
+
+# typescript
+*.tsbuildinfo
+
+# generated native folders
+/ios
+/android
+
+# local Claude Code session state
+.claude/scheduled_tasks.lock
+
+# --- EAS Build only ---
+
+# Un-bundled Sound source mp3s (hosted on GitHub Releases)
+/assets/audio-source
+
+# Test coverage reports
+/coverage
